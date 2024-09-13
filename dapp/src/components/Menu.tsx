@@ -28,7 +28,7 @@ const Menu = () => {
         }`}
       >
         <Link href="/create">Proposals</Link>
-        <li>Game</li>
+        <li className='list-none'>Game</li>
         <Link href="/account">Account</Link>
         <button className="bg-red-500 text-white rounded-full p-1 min-w-28 text-md hidden md:block">Connect</button>
       </div>

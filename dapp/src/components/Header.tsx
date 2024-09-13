@@ -16,7 +16,7 @@ const Header = () => {
         </Link>
 
         <div className="flex items-center gap-10">
-          <ul className="hidden md:flex gap-4 font-medium">
+          <ul className="hidden md:flex gap-4 font-medium list-none">
             <Link href="/create">Proposals</Link>
             <li>Game</li>
             <Link href="/account">Account</Link>

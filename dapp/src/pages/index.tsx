@@ -1,6 +1,7 @@
 import React from 'react'
 import Head from 'next/head'
 import styles from '@/styles/Home.module.css'
+import butterfly from '../../assets/butterfly.png'
 
 export default function Home() {
   return (
@@ -12,7 +13,18 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <h1 className="text-3xl font-bold underline">Hello world!</h1>
+      <div id="game" className="w-full h-80 border-gray-700 border mx-auto">
+        <div
+          id="dino"
+          className="bg-no-repeat w-16 h-16 absolute top-52 bg-cover bg-center"
+          style={{ backgroundImage: `url(${butterfly.src})` }}
+        />
+        <div id="cactus"></div>
+      </div>
+
+      <div className="flex justify-center items-center mt-8">
+        <button className="bg-red-500 text-white rounded-full p-1 min-w-28 text-md hidden md:block">Jump</button>
+      </div>
     </div>
   )
 }
