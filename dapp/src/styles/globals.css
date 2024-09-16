@@ -30,4 +30,45 @@
     .text-balance {
       text-wrap: balance;
     }
+
+    .jump {
+      animation: jump 0.3s linear;
+    }
+    
+    .enemy {
+      animation: enemy 1.5s infinite linear;
+    }
+    
+    @keyframes jump {
+      0% {
+        top: 270px;
+      }
+    
+      30% {
+        top: 130px;
+      }
+    
+      50% {
+        top: 80px;
+      }
+    
+      80% {
+        top: 130px;
+      }
+    
+      100% {
+        top: 150px;
+      }
+    }
+
+    @keyframes enemy {
+      0% {
+        left: 100%;
+      }
+    
+      100% {
+        left: -20px;
+      }
+    }
   }
+

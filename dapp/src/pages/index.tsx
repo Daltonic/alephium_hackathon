@@ -1,7 +1,8 @@
 import React from 'react'
 import Head from 'next/head'
 import styles from '@/styles/Home.module.css'
-import butterfly from '../../assets/butterfly.png'
+import jumper from '../../assets/frog.gif'
+import obstacle from '../../assets/flower.png'
 
 export default function Home() {
   return (
@@ -13,13 +14,17 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div id="game" className="w-full h-80 border-gray-700 border mx-auto">
+      <div id="game" className="w-full h-80 border-gray-700 border mx-auto overflow-hidden">
         <div
-          id="dino"
-          className="bg-no-repeat w-16 h-16 absolute top-52 bg-cover bg-center"
-          style={{ backgroundImage: `url(${butterfly.src})` }}
+          id="jumper"
+          className="bg-no-repeat w-16 h-16 relative top-[270px] bg-cover bg-center jump"
+          style={{ backgroundImage: `url(${jumper.src})` }}
         />
-        <div id="cactus"></div>
+        <div
+          id="obstacle"
+          className="bg-no-repeat w-24 h-24 relative top-[160px] left-[100%] bg-cover bg-center enemy"
+          style={{ backgroundImage: `url(${obstacle.src})` }}
+        />
       </div>
 
       <div className="flex justify-center items-center mt-8">
