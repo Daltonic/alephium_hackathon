@@ -14,16 +14,31 @@ export default function Home() {
   const [position, setPosition] = useState<number>(270)
   const [canJump, setCanJump] = useState(true)
   const [resetObstacle, setResetObstacle] = useState(false)
+  const [survivalTime, setSurvivalTime] = useState(0)
+
   let animationId: number
 
+  useEffect(() => {
+    let intervalId: any
+
+    if (!isGameOver) {
+      intervalId = setInterval(() => {
+        setSurvivalTime((prevTime) => prevTime + 1)
+      }, 250) // Increment time every second
+    }
+
+    return () => {
+      clearInterval(intervalId)
+    }
+  }, [isGameOver])
+
   const checkCollision = () => {
+    if (isGameOver) return
     if (
       obstacleRef.current &&
       jumperRef.current &&
-      parseInt(obstacleRef.current.style.left) < 20 && // assuming 20 is the width of the jumper
-      parseInt(obstacleRef.current.style.left) + 24 > 0 && // 24 is the width of the obstacle
-      parseInt(jumperRef.current.style.top) < 200 && // adjust this value based on obstacle's height
-      parseInt(jumperRef.current.style.top) + 16 > 160 // 16 is the height of the jumper, 160 is obstacle's top position
+      parseInt(obstacleRef.current.style.left.replace('%', '')) <= 3 &&
+      parseInt(jumperRef.current.style.top.replace('px', '')) > 210
     ) {
       console.log('Game Over!')
       setIsGameOver(true)
@@ -36,15 +51,19 @@ export default function Home() {
 
     const animateEnemy = () => {
       if (obstacleRef.current && !isGameOver) {
-        const currentLeft = parseInt(obstacleRef.current.style.left || '0')
-        const newLeft = Math.max(-10, currentLeft - obstacleSpeed)
-
-        if (newLeft <= -10) {
-          setLeftPosition(100)
-          setResetObstacle(true)
-        } else {
-          setLeftPosition(newLeft)
+        if (resetObstacle) {
+          obstacleRef.current.style.left = '100%'
           setResetObstacle(false)
+        } else {
+          const currentLeft = parseInt(obstacleRef.current.style.left || '0')
+          const newLeft = Math.max(-10, currentLeft - obstacleSpeed)
+
+          if (newLeft <= -10) {
+            obstacleRef.current.style.left = '100%' // Reset obstacle position
+            setResetObstacle(true)
+          } else {
+            obstacleRef.current.style.left = `${newLeft}%`
+          }
         }
       }
       animationId = requestAnimationFrame(animateEnemy)
@@ -55,14 +74,14 @@ export default function Home() {
     return () => {
       cancelAnimationFrame(animationId)
     }
-  }, [leftPosition, isGameOver, resetObstacle])
+  }, [leftPosition, isGameOver, resetObstacle, obstacleRef])
 
   useEffect(() => {
     let intervalId: any
 
     if (isJumping) {
       let isGoingUp = true
-      let jumpHeight = 140
+      let jumpHeight = 100
 
       intervalId = setInterval(() => {
         if (isGoingUp) {
@@ -93,8 +112,10 @@ export default function Home() {
   const jump = () => {
     if (canJump) {
       setIsJumping(true)
-      setPosition(140)
+      setPosition(120) // Jump height
       setCanJump(false)
+      setIsGameOver(false) // Reset game over state
+      setLeftPosition(100) // Reset obstacle position
     }
   }
 
@@ -104,7 +125,21 @@ export default function Home() {
     return () => {
       clearInterval(intervalId)
     }
-  }, [])
+  }, [isGameOver])
+
+  const resetGame = () => {
+    setIsGameOver(false)
+    setIsJumping(false)
+    setCanJump(true)
+    setLeftPosition(100)
+    setPosition(270)
+    setResetObstacle(false)
+    setSurvivalTime(0)
+
+    if (obstacleRef.current) {
+      obstacleRef.current.style.left = '100%'
+    }
+  }
 
   return (
     <div className={styles.container}>
@@ -115,24 +150,43 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="w-full h-80 border-gray-700 border mx-auto overflow-hidden">
+      <div className="w-full h-80 border-gray-700 border mx-auto overflow-hidden relative">
         <div
           ref={jumperRef}
-          className={`bg-no-repeat w-16 h-16 relative bg-cover bg-center ${isJumping ? 'jump' : ''}`}
+          className={`bg-no-repeat w-16 h-16 relative bg-cover bg-center`}
           style={{ backgroundImage: `url(${jumper.src})`, top: `${position}px` }}
         />
         <div
           ref={obstacleRef}
-          className="bg-no-repeat w-24 h-24 relative top-[160px] bg-cover bg-center"
+          className="bg-no-repeat w-16 h-16 relative top-[195px] bg-cover bg-center"
           style={{ backgroundImage: `url(${obstacle.src})`, left: `${leftPosition}%` }}
         />
+
+        {isGameOver && (
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-15 z-20">
+            <div className="flex flex-col items-center space-y-2">
+              <h4 className="text-xl font-bold">Game Over!</h4>
+              <button
+                onClick={resetGame}
+                className="bg-gray-500 text-white rounded-full px-4 py-2 min-w-[6rem] text-sm md:inline-block"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="absolute top-2 right-4 bg-gray-100 bg-opacity-15 py-1 px-2 rounded-lg">ALPH <span className='text-red-500'>{survivalTime}</span></div>
       </div>
 
-      {/* {!isGameOver && ( */}
-      <button onClick={jump} className="bg-red-500 text-white rounded-full p-1 min-w-28 text-md hidden md:block">
-        Jump
-      </button>
-      {/* )} */}
+      {!isGameOver && (
+        <button
+          onClick={jump}
+          className="bg-red-500 text-white rounded-full p-1 min-w-28 text-md hidden md:block mx-auto mt-8"
+        >
+          Jump
+        </button>
+      )}
     </div>
   )
 }
