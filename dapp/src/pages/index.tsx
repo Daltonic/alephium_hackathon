@@ -153,7 +153,7 @@ export default function Home() {
       <div className="w-full h-80 border-gray-700 border mx-auto overflow-hidden relative">
         <div
           ref={jumperRef}
-          className={`bg-no-repeat w-16 h-16 relative bg-cover bg-center`}
+          className={`bg-no-repeat w-16 h-16 relative bg-cover bg-center ${isJumping ? 'jump' : ''}`}
           style={{ backgroundImage: `url(${jumper.src})`, top: `${position}px` }}
         />
         <div
