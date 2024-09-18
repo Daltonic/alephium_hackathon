@@ -150,7 +150,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="w-full h-80 border-gray-700 border mx-auto overflow-hidden relative">
+      <div className="w-full h-80 mx-auto overflow-hidden relative bg-gray-300 bg-opacity-10 rounded-xl">
         <div
           ref={jumperRef}
           className={`bg-no-repeat w-16 h-16 relative bg-cover bg-center ${isJumping ? 'jump' : ''}`}
@@ -166,25 +166,42 @@ export default function Home() {
           <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-15 z-20">
             <div className="flex flex-col items-center space-y-2">
               <h4 className="text-xl font-bold">Game Over!</h4>
+              <p className='text-sm'>You must get upto 10 ALPH before claiming free tokens.</p>
               <button
                 onClick={resetGame}
-                className="bg-gray-500 text-white rounded-full px-4 py-2 min-w-[6rem] text-sm md:inline-block"
+                className="bg-gray-500 shadow-lg shadow-black text-white
+                rounded-full p-1 min-w-28 text-md hidden md:block hover:bg-[#141f34]
+                transition duration-300 ease-in-out transform hover:scale-105 mx-auto mt-5"
               >
-                Reset
+                Restart
               </button>
             </div>
           </div>
         )}
 
-        <div className="absolute top-2 right-4 bg-gray-100 bg-opacity-15 py-1 px-2 rounded-lg">ALPH <span className='text-red-500'>{survivalTime}</span></div>
+        <div className="absolute top-2 right-4 bg-gray-100 bg-opacity-15 py-1 px-2 rounded-lg">
+          ALPH <span className="text-red-500">{survivalTime}</span>
+        </div>
       </div>
 
       {!isGameOver && (
         <button
           onClick={jump}
-          className="bg-red-500 text-white rounded-full p-1 min-w-28 text-md hidden md:block mx-auto mt-8"
+          className="bg-red-500 shadow-lg shadow-black text-white
+            rounded-full p-1 min-w-28 text-md hidden md:block hover:bg-[#141f34]
+            transition duration-300 ease-in-out transform hover:scale-105 mx-auto mt-5"
         >
           Jump
+        </button>
+      )}
+
+      {isGameOver && survivalTime > 10 && (
+        <button
+          className="bg-green-500 shadow-lg shadow-black text-white
+            rounded-full p-1 min-w-28 text-md hidden md:block hover:bg-[#141f34]
+            transition duration-300 ease-in-out transform hover:scale-105 mx-auto mt-5"
+        >
+          Claim Prize
         </button>
       )}
     </div>

@@ -27,10 +27,16 @@ const Menu = () => {
             : 'hidden'
         }`}
       >
-        <Link href="/create">Proposals</Link>
-        <li className='list-none'>Game</li>
+        <Link href="/">Game</Link>
+        <Link href="/proposals">Proposals</Link>
         <Link href="/account">Account</Link>
-        <button className="bg-red-500 text-white rounded-full p-1 min-w-28 text-md hidden md:block">Connect</button>
+        <button
+          className="bg-blue-500 shadow-lg shadow-black text-white
+            rounded-full p-1 min-w-28 text-md hidden md:block hover:bg-[#141f34]
+            transition duration-300 ease-in-out transform hover:scale-105"
+        >
+          Connect
+        </button>
       </div>
     </div>
   )

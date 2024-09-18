@@ -1,7 +1,7 @@
 import React from 'react'
-import logo from '../../assets/logo.png'
 import Link from 'next/link'
 import Menu from './Menu'
+import logo from '../../assets/logo.png'
 import Image from 'next/image'
 
 const Header = () => {
@@ -17,13 +17,17 @@ const Header = () => {
 
         <div className="flex items-center gap-10">
           <ul className="hidden md:flex gap-4 font-medium list-none">
-            <Link href="/create">Proposals</Link>
-            <li>Game</li>
+            <Link href="/">Game</Link>
+            <Link href="/proposals">Proposals</Link>
             <Link href="/account">Account</Link>
           </ul>
           <Menu />
           <div className="hidden md:block">
-            <button className="bg-red-500 text-white rounded-full p-1 min-w-28 text-md hidden md:block">Connect</button>
+            <button className="bg-blue-500 shadow-lg shadow-black text-white
+            rounded-full p-1 min-w-28 text-md hidden md:block hover:bg-[#141f34]
+            transition duration-300 ease-in-out transform hover:scale-105">
+              Connect
+            </button>
           </div>
         </div>
       </div>
