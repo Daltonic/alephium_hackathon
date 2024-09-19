@@ -6,7 +6,7 @@ import obstacle from '../../assets/flower.png'
 
 export default function Home() {
   const [isJumping, setIsJumping] = useState(false)
-  const [isGameOver, setIsGameOver] = useState(false)
+  const [isGameOver, setIsGameOver] = useState(true)
 
   const jumperRef = React.useRef<HTMLDivElement>(null)
   const obstacleRef = React.useRef<HTMLDivElement>(null)
@@ -164,18 +164,33 @@ export default function Home() {
 
         {isGameOver && (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-15 z-20">
-            <div className="flex flex-col items-center space-y-2">
-              <h4 className="text-xl font-bold">Game Over!</h4>
-              <p className='text-sm'>You must get upto 10 ALPH before claiming free tokens.</p>
-              <button
-                onClick={resetGame}
-                className="bg-gray-500 shadow-lg shadow-black text-white
+            {survivalTime > 0 ? (
+              <div className="flex flex-col items-center space-y-2">
+                <h4 className="text-xl font-bold">Game Over!</h4>
+                <p className="text-sm">You must get upto 10 ALPH before claiming free tokens.</p>
+                <button
+                  onClick={resetGame}
+                  className="bg-gray-500 shadow-lg shadow-black text-white
                 rounded-full p-1 min-w-28 text-md hidden md:block hover:bg-[#141f34]
                 transition duration-300 ease-in-out transform hover:scale-105 mx-auto mt-5"
-              >
-                Restart
-              </button>
-            </div>
+                >
+                  Restart
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center space-y-2">
+                <h4 className="text-xl font-bold">Welcome!</h4>
+                <p className="text-sm">You must get upto 10 ALPH before claiming free tokens.</p>
+                <button
+                  onClick={resetGame}
+                  className="bg-gray-500 shadow-lg shadow-black text-white
+                rounded-full p-1 min-w-28 text-md hidden md:block hover:bg-[#141f34]
+                transition duration-300 ease-in-out transform hover:scale-105 mx-auto mt-5"
+                >
+                  Start
+                </button>
+              </div>
+            )}
           </div>
         )}
 
