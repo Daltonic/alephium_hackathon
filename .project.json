@@ -12,9 +12,9 @@
   "infos": {
     "AlphHack": {
       "sourceFile": "hack.ral",
-      "sourceCodeHash": "02ce1347a8059f37c904cd986c5b6be47e20ada6fe9cfc71df29a6773433ccc5",
-      "bytecodeDebugPatch": "=10-2+cc=1+1=1-2+6411=1-3=88-2+40=179-1+c=40+7a7e0214696e73657274206174206d617020706174683a2000=192",
-      "codeHashDebug": "4210aa6f08f7bf9ede257d0074f407a0df3558ec312fae86c288e4a7b981e185"
+      "sourceCodeHash": "6171034ecc63e8f2a72a316b8120952134bbe8e870ff96cc89d20407bf82d547",
+      "bytecodeDebugPatch": "=10-4+c=1-1=1+1=1-2+84116=88-2+41=179-1+c=40+7a7e0214696e73657274206174206d617020706174683a2000=196",
+      "codeHashDebug": "6d233c81d310f36374321a8d99670007385b2cab469f1316b5fc6b45c882ee16"
     }
   }
 }
