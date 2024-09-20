@@ -1,0 +1,39 @@
+Contract AlphHack(mut balance: U256) {
+    // Mapping
+    mapping[Address, U256] users
+
+    // Event emitted
+    event Funded(initiator: Address, amount: U256)
+
+    // Error codes
+    enum ErrorCodes {
+        InsufficientAmount = 0
+    }
+
+    @using(preapprovedAssets = true, checkExternalCaller = false, updateFields = true)
+    pub fn fundBalance(amount: U256) -> () {
+        assert!(amount > 0, ErrorCodes.InsufficientAmount)
+        let caller = callerAddress!()
+
+        if(users.contains!(caller)){
+            users[caller] = users[caller] + amount
+        }else{
+            users.insert!(caller, caller, amount)
+        }
+
+        balance = balance + amount
+        emit Funded(caller, amount)
+    }
+
+    pub fn getUserBal(user: Address) -> U256 {
+        if(users.contains!(user)){
+            return users[user]
+        }else{
+            return 0
+        }
+    }
+
+    pub fn getBalance() -> U256 {
+        return balance
+    }
+}
