@@ -1,29 +1,45 @@
-Contract AlphHack(mut balance: U256) {
+Contract AlphHack(
+    owner: Address,
+    mut balance: U256
+) {
     // Mapping
     mapping[Address, U256] users
 
     // Event emitted
     event Funded(initiator: Address, amount: U256)
+    event Claimed(initiator: Address, amount: U256)
 
     // Error codes
     enum ErrorCodes {
         InsufficientAmount = 0
+        Unauthorized = 1
     }
 
     @using(preapprovedAssets = true, checkExternalCaller = false, updateFields = true, assetsInContract = true)
-    pub fn fundBalance(amount: U256) -> () {
+    pub fn receive(amount: U256) -> () {
         assert!(amount > 0, ErrorCodes.InsufficientAmount)
         let caller = callerAddress!()
-
-        if(users.contains!(caller)){
-            users[caller] = users[caller] + amount
-        }else{
-            users.insert!(caller, caller, amount)
-        }
 
         balance = balance + amount
         transferTokenToSelf!(caller, ALPH, amount)
         emit Funded(caller, amount)
+    }
+    
+    @using(checkExternalCaller = false, updateFields = true, assetsInContract = true)
+    pub fn send(receiver: Address, amount: U256) -> () {
+        let caller = callerAddress!()
+        assert!(amount > 0, ErrorCodes.InsufficientAmount)
+        assert!(caller == owner, ErrorCodes.Unauthorized)
+
+        if(users.contains!(receiver)){
+            users[receiver] = users[receiver] + amount
+        }else{
+            users.insert!(caller, receiver, amount)
+        }
+
+        balance = balance - amount
+        transferTokenFromSelf!(receiver, ALPH, amount)
+        emit Claimed(receiver, amount)
     }
 
     pub fn getUserBal(user: Address) -> U256 {
