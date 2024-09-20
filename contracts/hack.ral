@@ -10,7 +10,7 @@ Contract AlphHack(mut balance: U256) {
         InsufficientAmount = 0
     }
 
-    @using(preapprovedAssets = true, checkExternalCaller = false, updateFields = true)
+    @using(preapprovedAssets = true, checkExternalCaller = false, updateFields = true, assetsInContract = true)
     pub fn fundBalance(amount: U256) -> () {
         assert!(amount > 0, ErrorCodes.InsufficientAmount)
         let caller = callerAddress!()
@@ -22,6 +22,7 @@ Contract AlphHack(mut balance: U256) {
         }
 
         balance = balance + amount
+        transferTokenToSelf!(caller, ALPH, amount)
         emit Funded(caller, amount)
     }
 
