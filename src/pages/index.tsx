@@ -1,30 +1,38 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import Head from 'next/head'
-import styles from '@/styles/Home.module.css'
 import jumper from '../../assets/frog.gif'
 import obstacle from '../../assets/flower.png'
 
-export default function Home() {
-  const [isJumping, setIsJumping] = useState(false)
-  const [isGameOver, setIsGameOver] = useState(true)
-
-  const jumperRef = React.useRef<HTMLDivElement>(null)
-  const obstacleRef = React.useRef<HTMLDivElement>(null)
+const Home: React.FC = () => {
+  const [isJumping, setIsJumping] = useState<boolean>(false)
+  const [isGameOver, setIsGameOver] = useState<boolean>(true)
   const [leftPosition, setLeftPosition] = useState<number>(100)
+  const [obstacleSpeed, setObstacleSpeed] = useState<number>(1)
   const [position, setPosition] = useState<number>(270)
-  const [canJump, setCanJump] = useState(true)
-  const [resetObstacle, setResetObstacle] = useState(false)
-  const [survivalTime, setSurvivalTime] = useState(0)
+  const [increaseTime] = useState<number>(30)
+  const [canJump, setCanJump] = useState<boolean>(true)
+  const [resetObstacle, setResetObstacle] = useState<boolean>(false)
+  const [survivalTime, setSurvivalTime] = useState<number>(0)
+
+  const jumperRef = useRef<HTMLDivElement>(null)
+  const obstacleRef = useRef<HTMLDivElement>(null)
 
   let animationId: number
 
+  // Increment survival time
   useEffect(() => {
-    let intervalId: any
+    let intervalId: NodeJS.Timeout
 
     if (!isGameOver) {
+      let timeSwap = 0
       intervalId = setInterval(() => {
-        setSurvivalTime((prevTime) => prevTime + 1)
-      }, 250) // Increment time every second
+        setSurvivalTime((prevTime) => prevTime + 0.1)
+        timeSwap += 1
+        if (timeSwap === increaseTime) {
+          setObstacleSpeed((prevSpeed) => prevSpeed + 0.01)
+          timeSwap = 0
+        }
+      }, 1000)
     }
 
     return () => {
@@ -32,56 +40,52 @@ export default function Home() {
     }
   }, [isGameOver])
 
+  // Check collision
   const checkCollision = () => {
     if (isGameOver) return
-    if (
-      obstacleRef.current &&
-      jumperRef.current &&
-      parseInt(obstacleRef.current.style.left.replace('%', '')) <= 3 &&
-      parseInt(jumperRef.current.style.top.replace('px', '')) > 210
-    ) {
-      console.log('Game Over!')
-      setIsGameOver(true)
-      cancelAnimationFrame(animationId) // Stop the animation
+
+    const obstacleLeft = obstacleRef.current?.style.left?.replace('%', '')
+    const jumperTop = jumperRef.current?.style.top?.replace('px', '')
+
+    if (obstacleLeft && jumperTop) {
+      if (parseInt(obstacleLeft) <= 3 && parseInt(jumperTop) > 210) {
+        setIsGameOver(true)
+        cancelAnimationFrame(animationId)
+      }
     }
   }
 
+  // Animate obstacle
   useEffect(() => {
-    let obstacleSpeed = 1
-
-    const animateEnemy = () => {
+    const animateObstacle = () => {
       if (obstacleRef.current && !isGameOver) {
-        if (resetObstacle) {
-          obstacleRef.current.style.left = '100%'
-          setResetObstacle(false)
-        } else {
-          const currentLeft = parseInt(obstacleRef.current.style.left || '0')
-          const newLeft = Math.max(-10, currentLeft - obstacleSpeed)
+        const currentLeft = parseInt(obstacleRef.current.style.left || '0')
+        const newLeft = Math.max(-10, currentLeft - obstacleSpeed)
 
-          if (newLeft <= -10) {
-            obstacleRef.current.style.left = '100%' // Reset obstacle position
-            setResetObstacle(true)
-          } else {
-            obstacleRef.current.style.left = `${newLeft}%`
-          }
+        if (newLeft <= -10) {
+          obstacleRef.current.style.left = '100%'
+          setResetObstacle(true)
+        } else {
+          obstacleRef.current.style.left = `${newLeft}%`
         }
       }
-      animationId = requestAnimationFrame(animateEnemy)
+      animationId = requestAnimationFrame(animateObstacle)
     }
-    animationId = requestAnimationFrame(animateEnemy)
 
-    // Clean up
+    animationId = requestAnimationFrame(animateObstacle)
+
     return () => {
       cancelAnimationFrame(animationId)
     }
-  }, [leftPosition, isGameOver, resetObstacle, obstacleRef])
+  }, [obstacleSpeed, isGameOver, resetObstacle])
 
+  // Handle jumping
   useEffect(() => {
-    let intervalId: any
+    let intervalId: NodeJS.Timeout
 
     if (isJumping) {
       let isGoingUp = true
-      let jumpHeight = 100
+      const jumpHeight = 100
 
       intervalId = setInterval(() => {
         if (isGoingUp) {
@@ -112,20 +116,35 @@ export default function Home() {
   const jump = () => {
     if (canJump) {
       setIsJumping(true)
-      setPosition(120) // Jump height
+      setPosition(120)
       setCanJump(false)
-      setIsGameOver(false) // Reset game over state
-      setLeftPosition(100) // Reset obstacle position
+      setIsGameOver(false)
+      setLeftPosition(100)
     }
   }
 
   useEffect(() => {
     const intervalId = setInterval(checkCollision, 10)
-
     return () => {
       clearInterval(intervalId)
     }
   }, [isGameOver])
+
+  // Handle key press for jump
+  useEffect(() => {
+    if (isGameOver) return
+    const handleKeyPress = (event: any) => {
+      if (event.code === 'Space' && canJump) {
+        jump()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyPress)
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyPress)
+    }
+  }, [canJump, jump])
 
   const resetGame = () => {
     setIsGameOver(false)
@@ -142,7 +161,7 @@ export default function Home() {
   }
 
   return (
-    <div className={styles.container}>
+    <>
       <Head>
         <title>AlphHack</title>
         <meta name="description" content="Generated by @alephium/cli init" />
@@ -167,12 +186,12 @@ export default function Home() {
             {survivalTime > 0 ? (
               <div className="flex flex-col items-center space-y-2">
                 <h4 className="text-xl font-bold">Game Over!</h4>
-                <p className="text-sm">You must get upto 10 ALPH before claiming free tokens.</p>
+                <p className="text-sm">You must get up to 5 ALPH before claiming free tokens.</p>
                 <button
                   onClick={resetGame}
-                  className="bg-gray-500 shadow-lg shadow-black text-white
-                rounded-full p-1 min-w-28 text-md hidden md:block hover:bg-[#141f34]
-                transition duration-300 ease-in-out transform hover:scale-105 mx-auto mt-5"
+                  className="bg-gray-500 shadow-lg shadow-black text-white rounded-full
+                  p-1 min-w-28 text-md hidden md:block hover:bg-[#141f34] transition
+                  duration-300 ease-in-out transform hover:scale-105 mx-auto mt-5"
                 >
                   Restart
                 </button>
@@ -180,12 +199,16 @@ export default function Home() {
             ) : (
               <div className="flex flex-col items-center space-y-2">
                 <h4 className="text-xl font-bold">Welcome!</h4>
-                <p className="text-sm">You must get upto 10 ALPH before claiming free tokens.</p>
+                <p className="text-sm">
+                  Press <span className="text-red-500">Spacebar</span> to jump obstacles, speed doubles after{' '}
+                  <span className="text-red-500">{increaseTime}sec</span>, claim your prize from{' '}
+                  <span className="text-red-500">5 ALPH</span>.
+                </p>
                 <button
                   onClick={resetGame}
-                  className="bg-gray-500 shadow-lg shadow-black text-white
-                rounded-full p-1 min-w-28 text-md hidden md:block hover:bg-[#141f34]
-                transition duration-300 ease-in-out transform hover:scale-105 mx-auto mt-5"
+                  className="bg-gray-500 shadow-lg shadow-black text-white rounded-full
+                  p-1 min-w-28 text-md hidden md:block hover:bg-[#141f34] transition
+                  duration-300 ease-in-out transform hover:scale-105 mx-auto mt-5"
                 >
                   Start
                 </button>
@@ -194,17 +217,20 @@ export default function Home() {
           </div>
         )}
 
+        <div className="absolute top-2 left-4 bg-gray-100 bg-opacity-15 py-1 px-2 rounded-lg">
+          Speed <span className="text-red-500">x{obstacleSpeed}</span>
+        </div>
         <div className="absolute top-2 right-4 bg-gray-100 bg-opacity-15 py-1 px-2 rounded-lg">
-          ALPH <span className="text-red-500">{survivalTime}</span>
+          ALPH <span className="text-red-500">{survivalTime.toFixed(1)}</span>
         </div>
       </div>
 
       {!isGameOver && (
         <button
           onClick={jump}
-          className="bg-red-500 shadow-lg shadow-black text-white
-            rounded-full p-1 min-w-28 text-md hidden md:block hover:bg-[#141f34]
-            transition duration-300 ease-in-out transform hover:scale-105 mx-auto mt-5"
+          className="bg-red-500 shadow-lg shadow-black text-white rounded-full
+          p-1 min-w-28 text-md hidden md:block hover:bg-[#141f34] transition
+          duration-300 ease-in-out transform hover:scale-105 mx-auto mt-5"
         >
           Jump
         </button>
@@ -212,13 +238,15 @@ export default function Home() {
 
       {isGameOver && survivalTime > 10 && (
         <button
-          className="bg-green-500 shadow-lg shadow-black text-white
-            rounded-full p-1 min-w-28 text-md hidden md:block hover:bg-[#141f34]
-            transition duration-300 ease-in-out transform hover:scale-105 mx-auto mt-5"
+          className="bg-green-500 shadow-lg shadow-black text-white rounded-full
+          p-1 min-w-28 text-md hidden md:block hover:bg-[#141f34] transition
+          duration-300 ease-in-out transform hover:scale-105 mx-auto mt-5"
         >
           Claim Prize
         </button>
       )}
-    </div>
+    </>
   )
 }
+
+export default Home
