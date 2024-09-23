@@ -25,7 +25,7 @@ Contract AlphHack(
         emit Funded(caller, amount)
     }
     
-    @using(preapprovedAssets = true, checkExternalCaller = false, updateFields = true)
+    @using(preapprovedAssets = true, checkExternalCaller = false, updateFields = true, assetsInContract = true)
     pub fn send(receiver: Address, amount: U256) -> () {
         let caller = callerAddress!()
         assert!(amount > 0, ErrorCodes.InsufficientAmount)
@@ -38,7 +38,7 @@ Contract AlphHack(
         }
 
         balance = balance - amount
-        transferToken!(owner, receiver, ALPH, amount)
+        transferTokenFromSelf!(receiver, ALPH, amount)
         emit Claimed(receiver, amount)
     }
 

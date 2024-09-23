@@ -188,8 +188,8 @@ class Factory extends ContractFactory<AlphHackInstance, AlphHackTypes.Fields> {
 export const AlphHack = new Factory(
   Contract.fromJson(
     AlphHackContractJson,
-    "=10-4+c=1-1=1+1=1-2+84116=88-2+41=179-1+c=40+7a7e0214696e73657274206174206d617020706174683a2000=196",
-    "6d233c81d310f36374321a8d99670007385b2cab469f1316b5fc6b45c882ee16",
+    "=10-2+cc=1+1=1-2+6411=1-3=88-2+40=179-1+c=40+7a7e0214696e73657274206174206d617020706174683a2000=192",
+    "ec0077773576906dece70389688f77da1249d5169bdd1403ee07050c52ef146b",
     []
   )
 );
