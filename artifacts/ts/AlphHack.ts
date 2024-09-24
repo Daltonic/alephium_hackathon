@@ -34,7 +34,7 @@ import {
 } from "@alephium/web3";
 import { default as AlphHackContractJson } from "../AlphHack.ral.json";
 import { getContractByCodeHash } from "./contracts";
-
+import { ProposalStruct, AllStructs } from "./types";
 import { RalphMap } from "@alephium/web3";
 
 // Custom types for the contract
@@ -42,6 +42,7 @@ export namespace AlphHackTypes {
   export type Fields = {
     owner: Address;
     balance: bigint;
+    totalProposals: bigint;
   };
 
   export type State = ContractState<Fields>;
@@ -60,7 +61,7 @@ export namespace AlphHackTypes {
       params: CallContractParams<{ amount: bigint }>;
       result: CallContractResult<null>;
     };
-    send: {
+    transfer: {
       params: CallContractParams<{ receiver: Address; amount: bigint }>;
       result: CallContractResult<null>;
     };
@@ -69,6 +70,26 @@ export namespace AlphHackTypes {
       result: CallContractResult<bigint>;
     };
     getBalance: {
+      params: Omit<CallContractParams<{}>, "args">;
+      result: CallContractResult<bigint>;
+    };
+    propose: {
+      params: CallContractParams<{
+        title: HexString;
+        description: HexString;
+        amount: bigint;
+      }>;
+      result: CallContractResult<null>;
+    };
+    getProposal: {
+      params: CallContractParams<{ pid: bigint }>;
+      result: CallContractResult<ProposalStruct>;
+    };
+    vote: {
+      params: CallContractParams<{ pid: bigint; choosen: boolean }>;
+      result: CallContractResult<null>;
+    };
+    getProposalCount: {
       params: Omit<CallContractParams<{}>, "args">;
       result: CallContractResult<bigint>;
     };
@@ -94,7 +115,7 @@ export namespace AlphHackTypes {
       params: SignExecuteContractMethodParams<{ amount: bigint }>;
       result: SignExecuteScriptTxResult;
     };
-    send: {
+    transfer: {
       params: SignExecuteContractMethodParams<{
         receiver: Address;
         amount: bigint;
@@ -109,13 +130,40 @@ export namespace AlphHackTypes {
       params: Omit<SignExecuteContractMethodParams<{}>, "args">;
       result: SignExecuteScriptTxResult;
     };
+    propose: {
+      params: SignExecuteContractMethodParams<{
+        title: HexString;
+        description: HexString;
+        amount: bigint;
+      }>;
+      result: SignExecuteScriptTxResult;
+    };
+    getProposal: {
+      params: SignExecuteContractMethodParams<{ pid: bigint }>;
+      result: SignExecuteScriptTxResult;
+    };
+    vote: {
+      params: SignExecuteContractMethodParams<{
+        pid: bigint;
+        choosen: boolean;
+      }>;
+      result: SignExecuteScriptTxResult;
+    };
+    getProposalCount: {
+      params: Omit<SignExecuteContractMethodParams<{}>, "args">;
+      result: SignExecuteScriptTxResult;
+    };
   }
   export type SignExecuteMethodParams<T extends keyof SignExecuteMethodTable> =
     SignExecuteMethodTable[T]["params"];
   export type SignExecuteMethodResult<T extends keyof SignExecuteMethodTable> =
     SignExecuteMethodTable[T]["result"];
 
-  export type Maps = { users?: Map<Address, bigint> };
+  export type Maps = {
+    users?: Map<Address, bigint>;
+    voted?: Map<HexString, boolean>;
+    proposals?: Map<bigint, ProposalStruct>;
+  };
 }
 
 class Factory extends ContractFactory<AlphHackInstance, AlphHackTypes.Fields> {
@@ -123,13 +171,19 @@ class Factory extends ContractFactory<AlphHackInstance, AlphHackTypes.Fields> {
     return encodeContractFields(
       addStdIdToFields(this.contract, fields),
       this.contract.fieldsSig,
-      []
+      AllStructs
     );
   }
 
   eventIndex = { Funded: 0, Claimed: 1 };
   consts = {
-    ErrorCodes: { InsufficientAmount: BigInt("0"), Unauthorized: BigInt("1") },
+    ErrorCodes: {
+      InsufficientAmount: BigInt("0"),
+      Unauthorized: BigInt("1"),
+      EmptyString: BigInt("2"),
+      NotFound: BigInt("3"),
+      AlreadyVoted: BigInt("4"),
+    },
   };
 
   at(address: string): AlphHackInstance {
@@ -146,14 +200,14 @@ class Factory extends ContractFactory<AlphHackInstance, AlphHackTypes.Fields> {
     ): Promise<TestContractResult<null, AlphHackTypes.Maps>> => {
       return testMethod(this, "receive", params, getContractByCodeHash);
     },
-    send: async (
+    transfer: async (
       params: TestContractParams<
         AlphHackTypes.Fields,
         { receiver: Address; amount: bigint },
         AlphHackTypes.Maps
       >
     ): Promise<TestContractResult<null, AlphHackTypes.Maps>> => {
-      return testMethod(this, "send", params, getContractByCodeHash);
+      return testMethod(this, "transfer", params, getContractByCodeHash);
     },
     getUserBal: async (
       params: TestContractParams<
@@ -172,6 +226,46 @@ class Factory extends ContractFactory<AlphHackInstance, AlphHackTypes.Fields> {
     ): Promise<TestContractResult<bigint, AlphHackTypes.Maps>> => {
       return testMethod(this, "getBalance", params, getContractByCodeHash);
     },
+    propose: async (
+      params: TestContractParams<
+        AlphHackTypes.Fields,
+        { title: HexString; description: HexString; amount: bigint },
+        AlphHackTypes.Maps
+      >
+    ): Promise<TestContractResult<null, AlphHackTypes.Maps>> => {
+      return testMethod(this, "propose", params, getContractByCodeHash);
+    },
+    getProposal: async (
+      params: TestContractParams<
+        AlphHackTypes.Fields,
+        { pid: bigint },
+        AlphHackTypes.Maps
+      >
+    ): Promise<TestContractResult<ProposalStruct, AlphHackTypes.Maps>> => {
+      return testMethod(this, "getProposal", params, getContractByCodeHash);
+    },
+    vote: async (
+      params: TestContractParams<
+        AlphHackTypes.Fields,
+        { pid: bigint; choosen: boolean },
+        AlphHackTypes.Maps
+      >
+    ): Promise<TestContractResult<null, AlphHackTypes.Maps>> => {
+      return testMethod(this, "vote", params, getContractByCodeHash);
+    },
+    getProposalCount: async (
+      params: Omit<
+        TestContractParams<AlphHackTypes.Fields, never, AlphHackTypes.Maps>,
+        "testArgs"
+      >
+    ): Promise<TestContractResult<bigint, AlphHackTypes.Maps>> => {
+      return testMethod(
+        this,
+        "getProposalCount",
+        params,
+        getContractByCodeHash
+      );
+    },
   };
 
   stateForTest(
@@ -188,9 +282,9 @@ class Factory extends ContractFactory<AlphHackInstance, AlphHackTypes.Fields> {
 export const AlphHack = new Factory(
   Contract.fromJson(
     AlphHackContractJson,
-    "=10-2+cc=1+1=1-2+6411=1-3=88-2+40=179-1+c=40+7a7e0214696e73657274206174206d617020706174683a2000=192",
-    "ec0077773576906dece70389688f77da1249d5169bdd1403ee07050c52ef146b",
-    []
+    "=10-2+cc=1+1=1-6+6=2-1=2-3+41dc=2+6=1-1+43=1-2+94=1+57=88-2+40=179-1+c=40+7a7e0214696e73657274206174206d617020706174683a2000=204-2+50=202+7a7e0214696e73657274206174206d617020706174683a2000=74+7a7e0214696e73657274206174206d617020706174683a2000=315-1+3=168+7a7e0214696e73657274206174206d617020706174683a2000=234",
+    "05761de74e2c321d95899d8ea09678c16c68278bbc768244d7b5f4c9095bfaf7",
+    AllStructs
   )
 );
 
@@ -205,6 +299,16 @@ export class AlphHackInstance extends ContractInstance {
       AlphHack.contract,
       this.contractId,
       "users"
+    ),
+    voted: new RalphMap<HexString, boolean>(
+      AlphHack.contract,
+      this.contractId,
+      "voted"
+    ),
+    proposals: new RalphMap<bigint, ProposalStruct>(
+      AlphHack.contract,
+      this.contractId,
+      "proposals"
     ),
   };
 
@@ -263,10 +367,16 @@ export class AlphHackInstance extends ContractInstance {
         getContractByCodeHash
       );
     },
-    send: async (
-      params: AlphHackTypes.CallMethodParams<"send">
-    ): Promise<AlphHackTypes.CallMethodResult<"send">> => {
-      return callMethod(AlphHack, this, "send", params, getContractByCodeHash);
+    transfer: async (
+      params: AlphHackTypes.CallMethodParams<"transfer">
+    ): Promise<AlphHackTypes.CallMethodResult<"transfer">> => {
+      return callMethod(
+        AlphHack,
+        this,
+        "transfer",
+        params,
+        getContractByCodeHash
+      );
     },
     getUserBal: async (
       params: AlphHackTypes.CallMethodParams<"getUserBal">
@@ -290,6 +400,44 @@ export class AlphHackInstance extends ContractInstance {
         getContractByCodeHash
       );
     },
+    propose: async (
+      params: AlphHackTypes.CallMethodParams<"propose">
+    ): Promise<AlphHackTypes.CallMethodResult<"propose">> => {
+      return callMethod(
+        AlphHack,
+        this,
+        "propose",
+        params,
+        getContractByCodeHash
+      );
+    },
+    getProposal: async (
+      params: AlphHackTypes.CallMethodParams<"getProposal">
+    ): Promise<AlphHackTypes.CallMethodResult<"getProposal">> => {
+      return callMethod(
+        AlphHack,
+        this,
+        "getProposal",
+        params,
+        getContractByCodeHash
+      );
+    },
+    vote: async (
+      params: AlphHackTypes.CallMethodParams<"vote">
+    ): Promise<AlphHackTypes.CallMethodResult<"vote">> => {
+      return callMethod(AlphHack, this, "vote", params, getContractByCodeHash);
+    },
+    getProposalCount: async (
+      params?: AlphHackTypes.CallMethodParams<"getProposalCount">
+    ): Promise<AlphHackTypes.CallMethodResult<"getProposalCount">> => {
+      return callMethod(
+        AlphHack,
+        this,
+        "getProposalCount",
+        params === undefined ? {} : params,
+        getContractByCodeHash
+      );
+    },
   };
 
   transact = {
@@ -298,10 +446,10 @@ export class AlphHackInstance extends ContractInstance {
     ): Promise<AlphHackTypes.SignExecuteMethodResult<"receive">> => {
       return signExecuteMethod(AlphHack, this, "receive", params);
     },
-    send: async (
-      params: AlphHackTypes.SignExecuteMethodParams<"send">
-    ): Promise<AlphHackTypes.SignExecuteMethodResult<"send">> => {
-      return signExecuteMethod(AlphHack, this, "send", params);
+    transfer: async (
+      params: AlphHackTypes.SignExecuteMethodParams<"transfer">
+    ): Promise<AlphHackTypes.SignExecuteMethodResult<"transfer">> => {
+      return signExecuteMethod(AlphHack, this, "transfer", params);
     },
     getUserBal: async (
       params: AlphHackTypes.SignExecuteMethodParams<"getUserBal">
@@ -312,6 +460,26 @@ export class AlphHackInstance extends ContractInstance {
       params: AlphHackTypes.SignExecuteMethodParams<"getBalance">
     ): Promise<AlphHackTypes.SignExecuteMethodResult<"getBalance">> => {
       return signExecuteMethod(AlphHack, this, "getBalance", params);
+    },
+    propose: async (
+      params: AlphHackTypes.SignExecuteMethodParams<"propose">
+    ): Promise<AlphHackTypes.SignExecuteMethodResult<"propose">> => {
+      return signExecuteMethod(AlphHack, this, "propose", params);
+    },
+    getProposal: async (
+      params: AlphHackTypes.SignExecuteMethodParams<"getProposal">
+    ): Promise<AlphHackTypes.SignExecuteMethodResult<"getProposal">> => {
+      return signExecuteMethod(AlphHack, this, "getProposal", params);
+    },
+    vote: async (
+      params: AlphHackTypes.SignExecuteMethodParams<"vote">
+    ): Promise<AlphHackTypes.SignExecuteMethodResult<"vote">> => {
+      return signExecuteMethod(AlphHack, this, "vote", params);
+    },
+    getProposalCount: async (
+      params: AlphHackTypes.SignExecuteMethodParams<"getProposalCount">
+    ): Promise<AlphHackTypes.SignExecuteMethodResult<"getProposalCount">> => {
+      return signExecuteMethod(AlphHack, this, "getProposalCount", params);
     },
   };
 

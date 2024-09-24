@@ -12,9 +12,15 @@
   "infos": {
     "AlphHack": {
       "sourceFile": "hack.ral",
-      "sourceCodeHash": "0ba090ceb1976b62f26fc35a173e4a439e1e10c24c4cae8d5195ca82c0744472",
-      "bytecodeDebugPatch": "=10-2+cc=1+1=1-2+6411=1-3=88-2+40=179-1+c=40+7a7e0214696e73657274206174206d617020706174683a2000=192",
-      "codeHashDebug": "ec0077773576906dece70389688f77da1249d5169bdd1403ee07050c52ef146b"
+      "sourceCodeHash": "a964c6f14e27b14af863ad018e646b79cb71b0fbe166ab8c9ff86a40fcf74da8",
+      "bytecodeDebugPatch": "=10-2+cc=1+1=1-6+6=2-1=2-3+41dc=2+6=1-1+43=1-2+94=1+57=88-2+40=179-1+c=40+7a7e0214696e73657274206174206d617020706174683a2000=204-2+50=202+7a7e0214696e73657274206174206d617020706174683a2000=74+7a7e0214696e73657274206174206d617020706174683a2000=315-1+3=168+7a7e0214696e73657274206174206d617020706174683a2000=234",
+      "codeHashDebug": "05761de74e2c321d95899d8ea09678c16c68278bbc768244d7b5f4c9095bfaf7"
+    },
+    "ProposalStruct": {
+      "sourceFile": "hack.ral",
+      "sourceCodeHash": "a964c6f14e27b14af863ad018e646b79cb71b0fbe166ab8c9ff86a40fcf74da8",
+      "bytecodeDebugPatch": "",
+      "codeHashDebug": ""
     }
   }
 }

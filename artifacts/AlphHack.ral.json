@@ -1,19 +1,22 @@
 {
   "version": "v3.6.2",
   "name": "AlphHack",
-  "bytecode": "0204402640b340ed40fb010101020013d3d2842a6716000c330c7bb41701a00016002aa100ce001600a905160116005f0101020300403ed332012bc0b4170216010c330c7b1602ce00450d7b140a5f5f6d61705f5f305f5f16004744cbc54c150c0d0d140a5f5f6d61705f5f305f5f16004744cb010116012a0c0e0c140a5f5f6d61705f5f305f5f16004744cb01024a0a1602d1a2140a5f5f6d61705f5f305f5f16004744b11601d20101a00016012ba10016001601a806160016015f010001010115d363c483b8140a5f5f6d61705f5f305f5f16004744cbc54c0b0c0d0d140a5f5f6d61705f5f305f5f16004744cb0101024a020c02010000000103d3c3401fcaa00002",
-  "codeHash": "bcc65aad455729658721dd01fefd6fc1720ca3274b2a57a4983983cc6c3a9f84",
+  "bytecode": "0308402640b340ed40fb4191422342e542f3010101020013d3d2842a6716000c330c7bb41701a00016002aa100ce001600a905160116005f0101020300403ed36ee15a7bb4170216010c330c7b1602ce00450d7b140a5f5f6d61705f5f305f5f16004744cbc54c150c0d0d140a5f5f6d61705f5f305f5f16004744cb010116012a0c0e0c140a5f5f6d61705f5f305f5f16004744cb01024a0a1602d1a2140a5f5f6d61705f5f305f5f16004744b11601d20101a00016012ba10016001601a806160016015f010001010115d363c483b8140a5f5f6d61705f5f305f5f16004744cbc54c0b0c0d0d140a5f5f6d61705f5f305f5f16004744cb0101024a020c02010000000103d3c3401fcaa000020101030e00404cd3fc7866a81600430c330e7b1601430c330e7b160211330c7ba0010d2aa101b41703a001160016010d0c561603170a170917081707170617051704160347170ba00140170c160b160c44170dce001602a91603d1a2140a5f5f6d61705f5f325f5fa001404416041609160ab11605160616071608d204041603d1a2140a5f5f6d61705f5f315f5f160d44b103d201010100010907404dd3bff602ce140a5f5f6d61705f5f325f5f16004044cbc54c402b0c0d0d140a5f5f6d61705f5f325f5f16004044cb1708160801000c0d0d160801010d0d0d160801010e0d0d160801010f0d0d160801010d0d0d160801000e0d0d16080100024a1a0c0c1301640c1301640c0c0cca170717061705170417031702170116011602160316041605160616070201030206004051d3cd635dda140a5f5f6d61705f5f325f5f16004044cbc50f7bb417021602471703160040170416031604441705140a5f5f6d61705f5f315f5f160544cbc519107b1602d1a2140a5f5f6d61705f5f315f5f160544b103d2010116014c150e0d0d140a5f5f6d61705f5f325f5f16004044cb01010d2a0e0e0c140a5f5f6d61705f5f325f5f16004044cb01024a140f0d0d140a5f5f6d61705f5f325f5f16004044cb01010d2a0f0e0c140a5f5f6d61705f5f325f5f16004044cb0102010000000103d37639891da00102",
+  "codeHash": "b739db4ab3f6a8f48ceb679be750f9721adbdb30a044906df1c0508a233adf86",
   "fieldsSig": {
     "names": [
       "owner",
-      "balance"
+      "balance",
+      "totalProposals"
     ],
     "types": [
       "Address",
+      "U256",
       "U256"
     ],
     "isMutable": [
       false,
+      true,
       true
     ]
   },
@@ -56,7 +59,7 @@
       "returnTypes": []
     },
     {
-      "name": "send",
+      "name": "transfer",
       "paramNames": [
         "receiver",
         "amount"
@@ -94,6 +97,65 @@
       "returnTypes": [
         "U256"
       ]
+    },
+    {
+      "name": "propose",
+      "paramNames": [
+        "title",
+        "description",
+        "amount"
+      ],
+      "paramTypes": [
+        "ByteVec",
+        "ByteVec",
+        "U256"
+      ],
+      "paramIsMutable": [
+        false,
+        false,
+        false
+      ],
+      "returnTypes": []
+    },
+    {
+      "name": "getProposal",
+      "paramNames": [
+        "pid"
+      ],
+      "paramTypes": [
+        "U256"
+      ],
+      "paramIsMutable": [
+        false
+      ],
+      "returnTypes": [
+        "ProposalStruct"
+      ]
+    },
+    {
+      "name": "vote",
+      "paramNames": [
+        "pid",
+        "choosen"
+      ],
+      "paramTypes": [
+        "U256",
+        "Bool"
+      ],
+      "paramIsMutable": [
+        false,
+        false
+      ],
+      "returnTypes": []
+    },
+    {
+      "name": "getProposalCount",
+      "paramNames": [],
+      "paramTypes": [],
+      "paramIsMutable": [],
+      "returnTypes": [
+        "U256"
+      ]
     }
   ],
   "constants": [],
@@ -114,16 +176,41 @@
             "type": "U256",
             "value": "1"
           }
+        },
+        {
+          "name": "EmptyString",
+          "value": {
+            "type": "U256",
+            "value": "2"
+          }
+        },
+        {
+          "name": "NotFound",
+          "value": {
+            "type": "U256",
+            "value": "3"
+          }
+        },
+        {
+          "name": "AlreadyVoted",
+          "value": {
+            "type": "U256",
+            "value": "4"
+          }
         }
       ]
     }
   ],
   "mapsSig": {
     "names": [
-      "users"
+      "users",
+      "voted",
+      "proposals"
     ],
     "types": [
-      "Map[Address,U256]"
+      "Map[Address,U256]",
+      "Map[ByteVec,Bool]",
+      "Map[U256,ProposalStruct]"
     ]
   }
 }

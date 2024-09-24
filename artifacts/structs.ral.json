@@ -1,0 +1,32 @@
+[
+  {
+    "name": "ProposalStruct",
+    "fieldNames": [
+      "id",
+      "title",
+      "description",
+      "upvotes",
+      "downvotes",
+      "timestamp",
+      "owner"
+    ],
+    "fieldTypes": [
+      "U256",
+      "ByteVec",
+      "ByteVec",
+      "U256",
+      "U256",
+      "U256",
+      "Address"
+    ],
+    "isMutable": [
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false
+    ]
+  }
+]

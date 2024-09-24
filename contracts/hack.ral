@@ -1,9 +1,22 @@
+struct ProposalStruct {
+    id: U256,
+    mut title: ByteVec,
+    mut description: ByteVec,
+    mut upvotes: U256,
+    mut downvotes: U256,
+    timestamp: U256,
+    owner: Address
+}
+
 Contract AlphHack(
     owner: Address,
-    mut balance: U256
+    mut balance: U256,
+    mut totalProposals: U256
 ) {
     // Mapping
     mapping[Address, U256] users
+    mapping[ByteVec, Bool] voted
+    mapping[U256, ProposalStruct] proposals
 
     // Event emitted
     event Funded(initiator: Address, amount: U256)
@@ -13,6 +26,9 @@ Contract AlphHack(
     enum ErrorCodes {
         InsufficientAmount = 0
         Unauthorized = 1
+        EmptyString = 2
+        NotFound = 3
+        AlreadyVoted = 4
     }
 
     @using(preapprovedAssets = true, checkExternalCaller = false, updateFields = true, assetsInContract = true)
@@ -26,7 +42,7 @@ Contract AlphHack(
     }
     
     @using(preapprovedAssets = true, checkExternalCaller = false, updateFields = true, assetsInContract = true)
-    pub fn send(receiver: Address, amount: U256) -> () {
+    pub fn transfer(receiver: Address, amount: U256) -> () {
         let caller = callerAddress!()
         assert!(amount > 0, ErrorCodes.InsufficientAmount)
         assert!(caller == owner, ErrorCodes.Unauthorized)
@@ -52,5 +68,75 @@ Contract AlphHack(
 
     pub fn getBalance() -> U256 {
         return balance
+    }
+    
+    @using(preapprovedAssets = true, checkExternalCaller = false, updateFields = true, assetsInContract = true)
+    pub fn propose(title: ByteVec, description: ByteVec, amount: U256) -> () {
+        assert!(size!(title) > 0, ErrorCodes.EmptyString)
+        assert!(size!(description) > 0, ErrorCodes.EmptyString)
+        assert!(amount > 5, ErrorCodes.InsufficientAmount)
+
+        totalProposals = totalProposals + 1
+        let caller = callerAddress!()
+
+        let proposal = ProposalStruct {
+            id: totalProposals,
+            title: title,
+            description: description,
+            upvotes: 1,
+            downvotes: 0,
+            timestamp: blockTimeStamp!(),
+            owner: caller
+        }
+
+        let voter_address_string = toByteVec!(caller)
+        let id_string = toByteVec!(totalProposals)
+        let vid = voter_address_string ++ id_string
+        transferTokenToSelf!(owner, ALPH, amount)
+
+        proposals.insert!(caller, totalProposals, proposal)
+        voted.insert!(caller, vid, true)
+    }
+
+    pub fn getProposal(pid: U256) -> ProposalStruct {
+        if(proposals.contains!(pid)) {
+            return proposals[pid]
+        }else {
+            let nullProposal = ProposalStruct {
+                id: 0,
+                title: encodeToByteVec!(0),
+                description: encodeToByteVec!(0),
+                upvotes: 0,
+                downvotes: 0,
+                timestamp: 0,
+                owner: nullContractAddress!()
+            }
+
+            return nullProposal
+        }
+    }
+
+    @using(preapprovedAssets = true, checkExternalCaller = false)
+    pub fn vote(pid: U256, choosen: Bool) -> () {
+        assert!(proposals.contains!(pid), ErrorCodes.NotFound)
+        
+        let caller = callerAddress!()
+        
+        let voter_address_string = toByteVec!(caller)
+        let id_string = toByteVec!(pid)
+        let vid = voter_address_string ++ id_string
+        
+        assert!(!voted.contains!(vid), ErrorCodes.AlreadyVoted)
+        voted.insert!(caller, vid, true)
+        
+        if(choosen) {
+            proposals[pid].upvotes = proposals[pid].upvotes + 1
+        }else {
+            proposals[pid].downvotes = proposals[pid].downvotes + 1
+        }
+    }
+
+    pub fn getProposalCount() -> U256 {
+        return totalProposals
     }
 }
