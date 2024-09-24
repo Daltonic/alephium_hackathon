@@ -92,7 +92,9 @@ Contract AlphHack(
         let voter_address_string = toByteVec!(caller)
         let id_string = toByteVec!(totalProposals)
         let vid = voter_address_string ++ id_string
+
         transferTokenToSelf!(owner, ALPH, amount)
+        balance = balance + amount
 
         proposals.insert!(caller, totalProposals, proposal)
         voted.insert!(caller, vid, true)
