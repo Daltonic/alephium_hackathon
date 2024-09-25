@@ -2,54 +2,69 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { RunScriptResult, DeployContractExecutionResult } from '@alephium/cli'
-import { NetworkId } from '@alephium/web3'
-import { AlphHack, AlphHackInstance } from '.'
-import { default as testnetDeployments } from '../.deployments.testnet.json'
-import { default as devnetDeployments } from '../.deployments.devnet.json'
+import { RunScriptResult, DeployContractExecutionResult } from "@alephium/cli";
+import { NetworkId } from "@alephium/web3";
+import { AlphHack, AlphHackInstance } from ".";
+import { default as testnetDeployments } from "../.deployments.testnet.json";
+import { default as devnetDeployments } from "../.deployments.devnet.json";
 
 export type Deployments = {
-  deployerAddress: string
+  deployerAddress: string;
   contracts: {
-    AlphHack: DeployContractExecutionResult<AlphHackInstance>
-  }
-}
+    AlphHack?: DeployContractExecutionResult<AlphHackInstance>;
+  };
+};
 
 function toDeployments(json: any): Deployments {
   const contracts = {
     AlphHack:
-      json.contracts['AlphHack'] === undefined
+      json.contracts["AlphHack"] === undefined
         ? undefined
         : {
-            ...json.contracts['AlphHack'],
-            contractInstance: AlphHack.at(json.contracts['AlphHack'].contractInstance.address)
-          }
-  }
+            ...json.contracts["AlphHack"],
+            contractInstance: AlphHack.at(
+              json.contracts["AlphHack"].contractInstance.address
+            ),
+          },
+  };
   return {
     ...json,
-    contracts: contracts as Deployments['contracts']
-  }
+    contracts: contracts as Deployments["contracts"],
+  };
 }
 
-export function loadDeployments(networkId: NetworkId, deployerAddress?: string): Deployments {
+export function loadDeployments(
+  networkId: NetworkId,
+  deployerAddress?: string
+): Deployments {
   const deployments =
-    networkId === 'testnet' ? testnetDeployments : networkId === 'devnet' ? devnetDeployments : undefined
+    networkId === "testnet"
+      ? testnetDeployments
+      : networkId === "devnet"
+      ? devnetDeployments
+      : undefined;
   if (deployments === undefined) {
-    throw Error('The contract has not been deployed to the ' + networkId)
+    throw Error("The contract has not been deployed to the " + networkId);
   }
-  const allDeployments: any[] = Array.isArray(deployments) ? deployments : [deployments]
+  const allDeployments: any[] = Array.isArray(deployments)
+    ? deployments
+    : [deployments];
   if (deployerAddress === undefined) {
     if (allDeployments.length > 1) {
       throw Error(
-        'The contract has been deployed multiple times on ' + networkId + ', please specify the deployer address'
-      )
+        "The contract has been deployed multiple times on " +
+          networkId +
+          ", please specify the deployer address"
+      );
     } else {
-      return toDeployments(allDeployments[0])
+      return toDeployments(allDeployments[0]);
     }
   }
-  const result = allDeployments.find((d) => d.deployerAddress === deployerAddress)
+  const result = allDeployments.find(
+    (d) => d.deployerAddress === deployerAddress
+  );
   if (result === undefined) {
-    throw Error('The contract deployment result does not exist')
+    throw Error("The contract deployment result does not exist");
   }
-  return toDeployments(result)
+  return toDeployments(result);
 }

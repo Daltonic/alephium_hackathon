@@ -2,6 +2,9 @@ import React, { useEffect, useState, useRef } from 'react'
 import Head from 'next/head'
 import jumper from '../../assets/frog.gif'
 import obstacle from '../../assets/flower.png'
+import { useWallet } from '@alephium/web3-react'
+import { Account } from '@alephium/web3'
+import { toast } from 'react-toastify'
 
 const Home: React.FC = () => {
   const [isJumping, setIsJumping] = useState<boolean>(false)
@@ -13,11 +16,63 @@ const Home: React.FC = () => {
   const [canJump, setCanJump] = useState<boolean>(true)
   const [resetObstacle, setResetObstacle] = useState<boolean>(false)
   const [survivalTime, setSurvivalTime] = useState<number>(0)
+  const { connectionStatus, signer } = useWallet()
 
   const jumperRef = useRef<HTMLDivElement>(null)
   const obstacleRef = useRef<HTMLDivElement>(null)
 
   let animationId: number
+  const [account, setAccount] = useState<Account>()
+
+  useEffect(() => {
+    signer?.getSelectedAccount().then((account) => setAccount(account))
+  }, [connectionStatus, signer])
+
+  const claimPrize = async () => {
+    if (connectionStatus === 'connected' && account) {
+      console.log('Sending...')
+
+      const headersList = {
+        Accept: '*/*',
+        'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
+        'Content-Type': 'application/json'
+      }
+
+      const bodyContent = JSON.stringify({
+        receiverAddress: account.address,
+        amount: Math.round(survivalTime)
+      })
+
+      await toast.promise(
+        new Promise<void>((resolve, reject) => {
+          fetch('/api/claim', {
+            method: 'POST',
+            body: bodyContent,
+            headers: headersList
+          })
+            .then(async (res: any) => {
+              const data = await res.json()
+              resetGame()
+              console.log(data)
+              console.log('Transfer successful')
+              resolve(res)
+            })
+            .catch((error) => reject(error))
+        }),
+        {
+          pending: 'Claiming...',
+          success: 'Prize sent successfully 👌',
+          error: 'Encountered error 🤯'
+        }
+      )
+
+      const response = await fetch('/api/claim', {
+        method: 'POST',
+        body: bodyContent,
+        headers: headersList
+      })
+    }
+  }
 
   // Increment survival time
   useEffect(() => {
@@ -29,7 +84,7 @@ const Home: React.FC = () => {
         setSurvivalTime((prevTime) => prevTime + 0.1)
         timeSwap += 1
         if (timeSwap === increaseTime) {
-          setObstacleSpeed((prevSpeed) => prevSpeed + 0.01)
+          setObstacleSpeed((prevSpeed) => prevSpeed + 1)
           timeSwap = 0
         }
       }, 1000)
@@ -236,11 +291,12 @@ const Home: React.FC = () => {
         </button>
       )}
 
-      {isGameOver && survivalTime > 10 && (
+      {isGameOver && survivalTime > 3 && (
         <button
           className="bg-green-500 shadow-lg shadow-black text-white rounded-full
           p-1 min-w-28 text-md hidden md:block hover:bg-[#141f34] transition
           duration-300 ease-in-out transform hover:scale-105 mx-auto mt-5"
+          onClick={() => claimPrize()}
         >
           Claim Prize
         </button>

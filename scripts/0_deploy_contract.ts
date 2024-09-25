@@ -11,17 +11,8 @@ import {
   web3,
   isHexString
 } from '@alephium/web3'
-import { getSigners } from '@alephium/web3-test'
-
-interface Proposal {
-  id: string
-  title: string
-  description: string
-  upvotes: string
-  downvotes: string
-  timestamp: number
-  owner: string
-}
+import { getSigners, testNodeWallet } from '@alephium/web3-test'
+import { ProposalStruct } from '../artifacts/ts/types'
 
 web3.setCurrentNodeProvider('http://127.0.0.1:22973', undefined, fetch)
 const nodeProvider = web3.getCurrentNodeProvider()
@@ -30,7 +21,9 @@ const deployContract: DeployFunction<Settings> = async (
   deployer: Deployer,
   network: Network<Settings>
 ): Promise<void> => {
-  const [sender, receiver] = await getSigners(2)
+  const signer = await testNodeWallet()
+  const [sender, receiver] = await signer.getAccounts()
+  await signer.setSelectedAccount(sender.address)
 
   const result = await deployer.deployContract(AlphHack, {
     initialFields: {
@@ -58,7 +51,7 @@ const deployContract: DeployFunction<Settings> = async (
   console.log('Gas Fee: ', gasFee)
 
   await contract.transact.receive({
-    signer: sender,
+    signer,
     args: { amount: amount * ONE_ALPH },
     attoAlphAmount: ONE_ALPH * 10n + DUST_AMOUNT
   })
@@ -72,8 +65,8 @@ const deployContract: DeployFunction<Settings> = async (
   console.log(`Receiver Balance After: ${await getALPHBalance(receiver.address)}`)
 
   await contract.transact.transfer({
-    signer: sender,
-    args: { receiver: receiver.address, amount: amount * ONE_ALPH },
+    signer,
+    args: { receiver: '13k6iGXSJamjtKV59r9e4VKkNbpHyiAb7mtVFon9pd61Z', amount: amount * ONE_ALPH },
     attoAlphAmount: ONE_ALPH * 10n + DUST_AMOUNT
   })
 
@@ -83,7 +76,7 @@ const deployContract: DeployFunction<Settings> = async (
   // console.log(Number(getBalance.returns))
   console.log(`Contract Balance Now: ${await getALPHBalance(contract.address)}`)
   console.log(`Sender Balance Now: ${await getALPHBalance(sender.address)}`)
-  console.log(`Receiver Balance Now: ${await getALPHBalance(receiver.address)}`)
+  console.log(`Receiver Balance Now: ${await getALPHBalance('13k6iGXSJamjtKV59r9e4VKkNbpHyiAb7mtVFon9pd61Z')}`)
 
   console.log('////')
   console.log('Before Proposing')
@@ -96,7 +89,7 @@ const deployContract: DeployFunction<Settings> = async (
   const proposeCost = BigInt(5)
 
   await contract.transact.propose({
-    signer: sender,
+    signer,
     args: { title: stringToHex(title), description: stringToHex(description), amount: proposeCost * ONE_ALPH },
     attoAlphAmount: ONE_ALPH * 10n + DUST_AMOUNT
   })
@@ -104,11 +97,12 @@ const deployContract: DeployFunction<Settings> = async (
   console.log('////')
   console.log('After Proposing')
 
+  
   proposalCount = await result.contractInstance.view.getProposalCount()
   console.log(`Proposal Count: ${proposalCount.returns}`)
 
   const params: CallContractParams<{ pid: bigint }> = {
-    args: { pid: BigInt(1) }
+    args: { pid: proposalCount.returns }
   }
 
   const proposal: any = await result.contractInstance.view.getProposal(params)
@@ -123,7 +117,15 @@ async function getALPHBalance(address: Address): Promise<bigint> {
 }
 
 function getProposalObject(proposal: any): Record<string, any> {
-  const proposalObject: Record<string, any> = {}
+  const proposalObject: ProposalStruct = {
+    id: BigInt(0),
+    title: '',
+    description: '',
+    upvotes: BigInt(0),
+    downvotes: BigInt(0),
+    timestamp: BigInt(0),
+    owner: ''
+  }
 
   for (const key in proposal.returns) {
     const value = proposal.returns[key]
@@ -135,7 +137,7 @@ function getProposalObject(proposal: any): Record<string, any> {
         proposalObject[key] = value
       }
     } else if (typeof value === 'bigint') {
-      proposalObject[key] = Number(value)
+      proposalObject[key] = value
     } else {
       proposalObject[key] = value
     }

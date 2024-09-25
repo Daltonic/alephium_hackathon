@@ -1,6 +1,9 @@
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import React, { useState } from 'react'
 import { AiOutlineMenu, AiOutlineClose } from 'react-icons/ai'
+
+const ConnectionStatusSSR = dynamic(() => import('./ConnectionStatusSSR'), { ssr: false })
 
 const Menu = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -30,13 +33,7 @@ const Menu = () => {
         <Link href="/">Game</Link>
         <Link href="/proposals">Proposals</Link>
         <Link href="/account">Account</Link>
-        <button
-          className="bg-blue-500 shadow-lg shadow-black text-white
-            rounded-full p-1 min-w-28 text-md hidden md:block hover:bg-[#141f34]
-            transition duration-300 ease-in-out transform hover:scale-105"
-        >
-          Connect
-        </button>
+        <ConnectionStatusSSR />
       </div>
     </div>
   )
