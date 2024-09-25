@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useConnect, useConnectSettingContext, useWallet } from '@alephium/web3-react'
 import { Account } from '@alephium/web3'
+import { truncateAddress } from '@/services/utils'
 
 const ConnectionStatusSSR = () => {
   const [account, setAccount] = useState<Account>()
@@ -10,16 +11,7 @@ const ConnectionStatusSSR = () => {
 
   useEffect(() => {
     signer?.getSelectedAccount().then((account) => setAccount(account))
-  }, [signer])
-
-  const truncateAddress = (address: string): string => {
-    if (!address || typeof address !== 'string') return ''
-
-    const truncatedLength = 4
-    const truncatedAddress = `${address.slice(0, truncatedLength)}...${address.slice(-truncatedLength)}`
-
-    return truncatedAddress
-  }
+  }, [signer, connectionStatus, account])
 
   return (
     <>

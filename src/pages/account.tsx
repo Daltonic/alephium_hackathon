@@ -1,10 +1,38 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
 import logo from '../../assets/logo.png'
 import Image from 'next/image'
 import Link from 'next/link'
+import { Account } from '@alephium/web3'
+import { useWallet } from '@alephium/web3-react'
+import { truncateAddress } from '@/services/utils'
 
 export default function Page() {
+  const { connectionStatus, signer } = useWallet()
+  const [account, setAccount] = useState<Account>()
+  const [balance, setBalance] = useState<number>(0)
+
+  useEffect(() => {
+    signer?.getSelectedAccount().then((account) => setAccount(account))
+
+    const fetchBalance = async () => {
+      let headersList = {
+        Accept: '*/*',
+        'User-Agent': 'Thunder Client (https://www.thunderclient.com)'
+      }
+      if (account) {
+        const response = await fetch(`/api/balance?receiverAddress=${account.address}`, {
+          method: 'GET',
+          headers: headersList
+        })
+        let data = await response.json()
+        setBalance(data.balance)
+      }
+    }
+
+    fetchBalance()
+  }, [connectionStatus, signer, account])
+
   return (
     <div>
       <Head>
@@ -24,14 +52,14 @@ export default function Page() {
             <div className="flex flex-row items-center">
               <Image src={logo} alt="logo" width={40} height={40} />
               <div className="ml-4">
-                <h4 className="text-lg font-medium text-gray-200">0x...1234</h4>
+                <h4 className="text-lg font-medium text-gray-200">{truncateAddress(account?.address || '')}</h4>
                 <p className="text-sm text-gray-400">@your_account</p>
               </div>
             </div>
             <div className="flex justify-between items-end">
               <div className="mt-6">
                 <h4 className="text-lg font-medium text-gray-200">Account Balance:</h4>
-                <p className="text-2xl font-bold text-gray-200">1.234 ALPH</p>
+                <p className="text-2xl font-bold text-gray-200">{balance} ALPH</p>
               </div>
               <Link
                 href={'/create'}
