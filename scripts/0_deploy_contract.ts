@@ -85,8 +85,8 @@ const deployContract: DeployFunction<Settings> = async (
   let proposalCount = await result.contractInstance.view.getProposalCount()
   console.log(`Proposal Count: ${proposalCount.returns}`)
 
-  const title = 'This is my first title'
-  const description = 'Hello, description here'
+  const title = 'Increase Community Funding'
+  const description = 'Allocate an additional 10% of block rewards to support community projects and initiatives.'
   const proposeCost = BigInt(5)
 
   await contract.transact.propose({
@@ -98,7 +98,6 @@ const deployContract: DeployFunction<Settings> = async (
   console.log('////')
   console.log('After Proposing')
 
-  
   proposalCount = await result.contractInstance.view.getProposalCount()
   console.log(`Proposal Count: ${proposalCount.returns}`)
 

@@ -3,7 +3,7 @@ import Head from 'next/head'
 import Proposal from '@/components/Proposal'
 import Link from 'next/link'
 import { NextPage } from 'next'
-// import { getProposalCount } from '@/services/blockchain'
+import EmptyProposal from '@/components/EmptyProposal'
 
 const Page: NextPage<{ proposalCount: number }> = ({ proposalCount }) => {
   return (
@@ -22,7 +22,7 @@ const Page: NextPage<{ proposalCount: number }> = ({ proposalCount }) => {
         >
           <div className="flex flex-col flex-wrap w-5/6">
             <h1 className="sm:text-3xl md:2xl text-xl">Create a New Proposal</h1>
-            <p className="text-md mt-2">A proposal cost 4 ALPH tokens, voting is free!</p>
+            <p className="text-md mt-2">A proposal cost 5 ALPH tokens and voting is 1 ALPH</p>
           </div>
           <Link
             href={'/create'}
@@ -36,9 +36,8 @@ const Page: NextPage<{ proposalCount: number }> = ({ proposalCount }) => {
 
         <div className="h-10" />
 
-        {Array.from({ length: proposalCount }, (_, i) => (
-          <Proposal proposalId={i + 1} key={i} />
-        ))}
+        {proposalCount < 1 && <EmptyProposal />}
+        {proposalCount > 0 && Array.from({ length: proposalCount }, (_, i) => <Proposal proposalId={i + 1} key={i} />)}
       </div>
     </div>
   )
@@ -47,11 +46,17 @@ const Page: NextPage<{ proposalCount: number }> = ({ proposalCount }) => {
 export default Page
 
 export const getServerSideProps = async () => {
-  const response = await fetch('http://localhost:3000/api/counts')
-  const data = await response.json()
+  try {
+    const response = await fetch('http://localhost:3000/api/counts')
+    const data = await response.json()
 
-  const proposalCount = data.count
-  return {
-    props: { proposalCount: JSON.parse(JSON.stringify(proposalCount)) }
+    const proposalCount = data.count
+    return {
+      props: { proposalCount: JSON.parse(JSON.stringify(proposalCount)) }
+    }
+  } catch (error) {
+    return {
+      props: { proposalCount: 0 }
+    }
   }
 }

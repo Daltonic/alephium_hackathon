@@ -65,12 +65,6 @@ const Home: React.FC = () => {
           error: 'Encountered error 🤯'
         }
       )
-
-      const response = await fetch('/api/claim', {
-        method: 'POST',
-        body: bodyContent,
-        headers: headersList
-      })
     }
   }
 
@@ -241,7 +235,7 @@ const Home: React.FC = () => {
             {survivalTime > 0 ? (
               <div className="flex flex-col items-center space-y-2">
                 <h4 className="text-xl font-bold">Game Over!</h4>
-                <p className="text-sm">You must get up to 5 ALPH before claiming free tokens.</p>
+                <p className="text-sm">You must get up to 1 ALPH before claiming free tokens.</p>
                 <button
                   onClick={resetGame}
                   className="bg-gray-500 shadow-lg shadow-black text-white rounded-full
@@ -257,7 +251,7 @@ const Home: React.FC = () => {
                 <p className="text-sm">
                   Press <span className="text-red-500">Spacebar</span> to jump obstacles, speed doubles after{' '}
                   <span className="text-red-500">{increaseTime}sec</span>, claim your prize from{' '}
-                  <span className="text-red-500">5 ALPH</span>.
+                  <span className="text-red-500">1 ALPH</span>.
                 </p>
                 <button
                   onClick={resetGame}
@@ -291,7 +285,7 @@ const Home: React.FC = () => {
         </button>
       )}
 
-      {isGameOver && survivalTime > 3 && (
+      {isGameOver && survivalTime > 1.5 && (
         <button
           className="bg-green-500 shadow-lg shadow-black text-white rounded-full
           p-1 min-w-28 text-md hidden md:block hover:bg-[#141f34] transition

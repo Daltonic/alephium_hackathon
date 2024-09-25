@@ -1,4 +1,4 @@
-import { Address, NetworkId, web3 } from '@alephium/web3'
+import { NetworkId, web3 } from '@alephium/web3'
 import { loadDeployments } from '../../artifacts/ts/deployments'
 
 export interface AlphHackConfig {

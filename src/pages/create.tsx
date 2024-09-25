@@ -34,35 +34,35 @@ export default function Page() {
     event.preventDefault()
 
     if (proposed.title === '' || proposed.description === '') return toast.error('Please fill in all details.')
+    if (connectionStatus !== 'connected' && !account) return toast.error('Please connect wallet first.')
+    if (!signer) return
 
-    if (connectionStatus === 'connected' && account) {
-      await toast.promise(
-        new Promise<void>((resolve, reject) => {
-          contract.transact
-            .propose({
-              signer,
-              args: {
-                title: stringToHex(proposed.title),
-                description: stringToHex(proposed.description),
-                amount: proposeCost
-              },
-              attoAlphAmount: ONE_ALPH * proposeCost
-            })
-            .then(async (res: any) => {
-              await waitForTxConfirmation(res.txId, 1, 4000)
-              setProposed({ title: '', description: '' })
-              console.log(res.txId)
-              resolve(res)
-            })
-            .catch((error) => reject(error))
-        }),
-        {
-          pending: 'Creating...',
-          success: 'Proposal created successfully 👌',
-          error: 'Encountered error 🤯'
-        }
-      )
-    }
+    await toast.promise(
+      new Promise<void>((resolve, reject) => {
+        contract.transact
+          .propose({
+            signer,
+            args: {
+              title: stringToHex(proposed.title),
+              description: stringToHex(proposed.description),
+              amount: proposeCost
+            },
+            attoAlphAmount: ONE_ALPH * proposeCost
+          })
+          .then(async (res: any) => {
+            await waitForTxConfirmation(res.txId, 1, 4000)
+            setProposed({ title: '', description: '' })
+            console.log(res.txId)
+            resolve(res)
+          })
+          .catch((error) => reject(error))
+      }),
+      {
+        pending: 'Creating...',
+        success: 'Proposal created successfully 👌',
+        error: 'Encountered error 🤯'
+      }
+    )
   }
 
   return (
