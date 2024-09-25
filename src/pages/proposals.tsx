@@ -2,8 +2,10 @@ import React from 'react'
 import Head from 'next/head'
 import Proposal from '@/components/Proposal'
 import Link from 'next/link'
+import { NextPage } from 'next'
+// import { getProposalCount } from '@/services/blockchain'
 
-export default function Page() {
+const Page: NextPage<{ proposalCount: number }> = ({ proposalCount }) => {
   return (
     <div>
       <Head>
@@ -34,10 +36,22 @@ export default function Page() {
 
         <div className="h-10" />
 
-        {Array.from({ length: 5 }, (_, i) => (
-          <Proposal key={i} />
+        {Array.from({ length: proposalCount }, (_, i) => (
+          <Proposal proposalId={i + 1} key={i} />
         ))}
       </div>
     </div>
   )
+}
+
+export default Page
+
+export const getServerSideProps = async () => {
+  const response = await fetch('http://localhost:3000/api/counts')
+  const data = await response.json()
+
+  const proposalCount = data.count
+  return {
+    props: { proposalCount: JSON.parse(JSON.stringify(proposalCount)) }
+  }
 }

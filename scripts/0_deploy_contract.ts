@@ -11,7 +11,7 @@ import {
   web3,
   isHexString
 } from '@alephium/web3'
-import { getSigners, testNodeWallet } from '@alephium/web3-test'
+import { testNodeWallet } from '@alephium/web3-test'
 import { ProposalStruct } from '../artifacts/ts/types'
 
 web3.setCurrentNodeProvider('http://127.0.0.1:22973', undefined, fetch)
