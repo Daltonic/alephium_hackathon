@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import Head from 'next/head'
 import jumper from '../../assets/frog.gif'
-import obstacle from '../../assets/flower.png'
+import obstacle from '../../assets/croc.gif'
 import { useWallet } from '@alephium/web3-react'
 import { Account } from '@alephium/web3'
 import { toast } from 'react-toastify'
@@ -76,11 +76,11 @@ const Home: React.FC = () => {
       let timeSwap = 0
       intervalId = setInterval(() => {
         setSurvivalTime((prevTime) => prevTime + 0.1)
-        timeSwap += 1
-        if (timeSwap === increaseTime) {
-          setObstacleSpeed((prevSpeed) => prevSpeed + 1)
-          timeSwap = 0
-        }
+        // timeSwap += 1
+        // if (timeSwap === increaseTime) {
+        //   setObstacleSpeed((prevSpeed) => prevSpeed + 1)
+        //   timeSwap = 0
+        // }
       }, 1000)
     }
 
