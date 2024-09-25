@@ -9,7 +9,8 @@ import {
   stringToHex,
   hexToString,
   web3,
-  isHexString
+  isHexString,
+  MINIMAL_CONTRACT_DEPOSIT
 } from '@alephium/web3'
 import { testNodeWallet } from '@alephium/web3-test'
 import { ProposalStruct } from '../artifacts/ts/types'
@@ -90,8 +91,8 @@ const deployContract: DeployFunction<Settings> = async (
 
   await contract.transact.propose({
     signer,
-    args: { title: stringToHex(title), description: stringToHex(description), amount: proposeCost * ONE_ALPH },
-    attoAlphAmount: ONE_ALPH * 10n + DUST_AMOUNT
+    args: { title: stringToHex(title), description: stringToHex(description), amount: proposeCost },
+    attoAlphAmount: proposeCost * ONE_ALPH
   })
 
   console.log('////')

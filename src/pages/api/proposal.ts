@@ -16,7 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     web3.setCurrentNodeProvider('http://127.0.0.1:22973', undefined, fetch)
 
     const signer = await testNodeWallet()
-    const [sender, receiver] = await signer.getAccounts()
+    const [sender] = await signer.getAccounts()
     await signer.setSelectedAccount(sender.address)
 
     try {
@@ -29,7 +29,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       let proposal = await contract.view.getProposal(params)
-      console.log(`Proposal: ${proposal.returns}`)
 
       res.status(200).json({
         message: `Total proposals available`,
