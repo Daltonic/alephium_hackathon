@@ -1,5 +1,5 @@
 {
-  "fullNodeVersion": "v3.6.2",
+  "fullNodeVersion": "v3.6.4",
   "compilerOptionsUsed": {
     "ignoreUnusedConstantsWarnings": false,
     "ignoreUnusedVariablesWarnings": false,
@@ -12,13 +12,13 @@
   "infos": {
     "AlphHack": {
       "sourceFile": "hack.ral",
-      "sourceCodeHash": "105014160551c485db56d3702a195e259d48b53fb7f47d8f5e84a28bebe85fea",
+      "sourceCodeHash": "64535d1b5ebd126ea4d71f61a2d4bff38ce4ab080e419ac587078f8c31efbb15",
       "bytecodeDebugPatch": "=13+12=1-2=2-2+fe=1-1+20=1-1=2-2+9e=2-2+ac=2-2+d2=190-2+50=200+7a7e0214696e73657274206174206d617020706174683a2000=74+7a7e0214696e73657274206174206d617020706174683a2000=23-1+7=164+7a7e0214696e73657274206174206d617020706174683a2000=640",
-      "codeHashDebug": "4918577c0ea1d4bc098959d547f691c7aab03c278443b247dfb98a279c1b10f9"
+      "codeHashDebug": "4851390284e4ef3383fe81cabf9d22e8fdd51b2892c94126de34bdb945ee8523"
     },
     "ProposalStruct": {
       "sourceFile": "hack.ral",
-      "sourceCodeHash": "105014160551c485db56d3702a195e259d48b53fb7f47d8f5e84a28bebe85fea",
+      "sourceCodeHash": "64535d1b5ebd126ea4d71f61a2d4bff38ce4ab080e419ac587078f8c31efbb15",
       "bytecodeDebugPatch": "",
       "codeHashDebug": ""
     }

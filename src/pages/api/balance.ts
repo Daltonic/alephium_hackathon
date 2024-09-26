@@ -10,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Receiver address is required' })
     }
 
-    web3.setCurrentNodeProvider(process.env.NODE_URL || '', undefined, fetch)
+    web3.setCurrentNodeProvider(process.env.NEXT_PUBLIC_NODE_URL as string, undefined, fetch)
     const nodeProvider = web3.getCurrentNodeProvider()
 
     try {

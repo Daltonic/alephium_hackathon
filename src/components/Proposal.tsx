@@ -1,5 +1,5 @@
 import 'dotenv/config'
-import { truncateAddress } from '@/services/utils'
+import { isValidNetworkId, truncateAddress } from '@/services/utils'
 import { ProposalStruct } from '../../artifacts/ts/types'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Account, hexToString, ONE_ALPH, waitForTxConfirmation, web3 } from '@alephium/web3'
@@ -12,8 +12,13 @@ interface ProposalProps {
 }
 
 const Proposal: React.FC<ProposalProps> = ({ proposalId }) => {
-  web3.setCurrentNodeProvider(process.env.NODE_URL || '')
-  const contract = loadDeployments('devnet').contracts.AlphHack.contractInstance
+  web3.setCurrentNodeProvider(process.env.NEXT_PUBLIC_NODE_URL as string)
+  
+  const contract = loadDeployments(
+    process.env.NEXT_PUBLIC_NETWORK && isValidNetworkId(process.env.NEXT_PUBLIC_NETWORK)
+      ? process.env.NEXT_PUBLIC_NETWORK
+      : 'devnet'
+  ).contracts.AlphHack.contractInstance
 
   const [proposal, setProposal] = useState<ProposalStruct>()
   const [hasVoted, setHasVoted] = useState<boolean>()

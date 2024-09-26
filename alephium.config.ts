@@ -29,20 +29,20 @@ const defaultSettings: Settings = {
 const configuration: Configuration<Settings> = {
   networks: {
     devnet: {
-      nodeUrl: process.env.NODE_URL || '',
+      nodeUrl: process.env.NEXT_PUBLIC_NODE_URL as string,
       // here we could configure which address groups to deploy the contract
       privateKeys: ['a642942e67258589cd2b1822c631506632db5a12aabcf413604e785300d762a5'],
       settings: defaultSettings
     },
 
     testnet: {
-      nodeUrl: process.env.NODE_URL as string,
+      nodeUrl: process.env.NEXT_PUBLIC_NODE_URL as string,
       privateKeys: process.env.PRIVATE_KEYS === undefined ? [] : process.env.PRIVATE_KEYS.split(','),
       settings: defaultSettings
     },
 
     mainnet: {
-      nodeUrl: process.env.NODE_URL as string,
+      nodeUrl: process.env.NEXT_PUBLIC_NODE_URL as string,
       privateKeys: process.env.PRIVATE_KEYS === undefined ? [] : process.env.PRIVATE_KEYS.split(','),
       settings: defaultSettings
     }

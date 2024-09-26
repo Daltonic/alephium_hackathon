@@ -55,7 +55,7 @@ Contract AlphHack(
     pub fn propose(title: ByteVec, description: ByteVec, amount: U256) -> () {
         assert!(size!(title) > 0, ErrorCodes.EmptyString)
         assert!(size!(description) > 0, ErrorCodes.EmptyString)
-        assert!(amount >= 5, ErrorCodes.InsufficientAmount)
+        assert!(amount >= 1, ErrorCodes.InsufficientAmount)
 
         totalProposals = totalProposals + 1
         let caller = callerAddress!()
