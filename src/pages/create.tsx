@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
 import { Account, ONE_ALPH, stringToHex, waitForTxConfirmation, web3 } from '@alephium/web3'
 import { useWallet } from '@alephium/web3-react'
-import { loadDeployments } from 'artifacts/ts/deployments'
+import { loadDeployments } from '../../artifacts/ts/deployments'
 import { toast } from 'react-toastify'
 import { isValidNetworkId } from '@/services/utils'
 
