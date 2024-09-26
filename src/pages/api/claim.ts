@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import { ONE_ALPH, waitForTxConfirmation, web3 } from '@alephium/web3'
-import { testNodeWallet } from '@alephium/web3-test'
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { PrivateKeyWallet } from '@alephium/web3-wallet'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
@@ -15,21 +15,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Receiving amount is required' })
     }
 
-    web3.setCurrentNodeProvider(process.env.NODE_URL || '', undefined, fetch)
+    web3.setCurrentNodeProvider(process.env.NEXT_PUBLIC_NODE_URL as string, undefined, fetch)
     const nodeProvider = web3.getCurrentNodeProvider()
 
-    const signer = await testNodeWallet()
-    const [sender] = await signer.getAccounts()
-    await signer.setSelectedAccount(sender.address)
+    const signer = new PrivateKeyWallet({
+      privateKey: process.env.NEXT_PUBLIC_PRIVATE_KEYS as string
+    })
 
     // Transfer ALPH from sender to receiverAddress
     try {
       const tx = await signer.signAndSubmitTransferTx({
-        signerAddress: sender.address,
+        // signerAddress: sender.address,
+        signerAddress: signer.address,
         destinations: [{ address: receiverAddress, attoAlphAmount: BigInt(amount) * ONE_ALPH }]
       })
 
-      await waitForTxConfirmation(tx.txId, 1, 2)
+      await waitForTxConfirmation(tx.txId, 1, 4000)
 
       const { balance: receiverBalanceAfter } = await nodeProvider.addresses.getAddressesAddressBalance(receiverAddress)
 

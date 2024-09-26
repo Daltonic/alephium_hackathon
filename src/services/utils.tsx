@@ -32,4 +32,8 @@ export const truncateAddress = (address: string): string => {
   return truncatedAddress
 }
 
+export const isValidNetworkId = (networkId: string): networkId is NetworkId => {
+  return ['mainnet', 'testnet', 'devnet'].includes(networkId)
+}
+
 export const alphHackConfig = getAlphHackConfig()

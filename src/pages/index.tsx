@@ -21,7 +21,7 @@ const Home: React.FC = () => {
 
   const jumperRef = useRef<HTMLDivElement>(null)
   const obstacleRef = useRef<HTMLDivElement>(null)
-
+  const [claiming, setClaiming] = useState<boolean>()
   const [account, setAccount] = useState<Account>()
 
   useEffect(() => {
@@ -29,43 +29,49 @@ const Home: React.FC = () => {
   }, [connectionStatus, signer])
 
   const claimPrize = async () => {
-    if (connectionStatus === 'connected' && account) {
-      console.log('Sending...')
+    setClaiming(true)
+    if (connectionStatus !== 'connected' && !account) return toast.error('Please connect wallet first.')
+    if (!signer || claiming || !account) return
 
-      const headersList = {
-        Accept: '*/*',
-        'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
-        'Content-Type': 'application/json'
-      }
+    console.log('Sending...')
 
-      const bodyContent = JSON.stringify({
-        receiverAddress: account.address,
-        amount: Math.round(survivalTime)
-      })
-
-      await toast.promise(
-        new Promise<void>((resolve, reject) => {
-          fetch('/api/claim', {
-            method: 'POST',
-            body: bodyContent,
-            headers: headersList
-          })
-            .then(async (res: any) => {
-              const data = await res.json()
-              resetGame()
-              console.log(data)
-              console.log('Transfer successful')
-              resolve(res)
-            })
-            .catch((error) => reject(error))
-        }),
-        {
-          pending: 'Claiming...',
-          success: 'Prize sent successfully 👌',
-          error: 'Encountered error 🤯'
-        }
-      )
+    const headersList = {
+      Accept: '*/*',
+      'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
+      'Content-Type': 'application/json'
     }
+
+    const bodyContent = JSON.stringify({
+      receiverAddress: account.address,
+      amount: Math.round(survivalTime)
+    })
+
+    await toast.promise(
+      new Promise<void>((resolve, reject) => {
+        fetch('/api/claim', {
+          method: 'POST',
+          body: bodyContent,
+          headers: headersList
+        })
+          .then(async (res: any) => {
+            const data = await res.json()
+            resetGame()
+            console.log(data)
+            setClaiming(false)
+            console.log('Transfer successful')
+            resolve(res)
+          })
+          .catch((error) => {
+            setClaiming(false)
+            reject(error)
+          })
+      }),
+      {
+        pending: 'Claiming...',
+        success: 'Prize sent successfully 👌',
+        error: 'Encountered error 🤯'
+      }
+    )
   }
 
   // Increment survival time
@@ -288,10 +294,13 @@ const Home: React.FC = () => {
 
       {isGameOver && survivalTime > 1 && (
         <button
-          className="bg-green-500 shadow-lg shadow-black text-white rounded-full
+          className={`bg-green-500 shadow-lg shadow-black text-white rounded-full
           p-1 min-w-28 text-md hidden md:block hover:bg-[#141f34] transition
-          duration-300 ease-in-out transform hover:scale-105 mx-auto mt-5"
+          duration-300 ease-in-out transform hover:scale-105 mx-auto mt-5 ${
+            !signer || claiming ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
           onClick={() => claimPrize()}
+          disabled={claiming}
         >
           Claim Prize
         </button>

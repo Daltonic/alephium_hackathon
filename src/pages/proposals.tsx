@@ -6,7 +6,7 @@ import { NextPage } from 'next'
 import EmptyProposal from '@/components/EmptyProposal'
 
 interface Props {
-  proposalCount: number;
+  proposalCount: number
 }
 
 const Page: NextPage<Props> = ({ proposalCount }) => {
@@ -26,7 +26,7 @@ const Page: NextPage<Props> = ({ proposalCount }) => {
         >
           <div className="flex flex-col flex-wrap w-5/6">
             <h1 className="sm:text-3xl md:2xl text-xl">Create a New Proposal</h1>
-            <p className="text-md mt-2">A proposal cost 5 ALPH tokens and voting is 1 ALPH</p>
+            <p className="text-md mt-2">1 ALPH token for creating and voting on proposals</p>
           </div>
           <Link
             href={'/create'}
@@ -51,8 +51,8 @@ export default Page
 
 export const getServerSideProps = async () => {
   try {
-    const base_url = process.env.BASE_URL || '';
-    const response = await fetch(`${base_url}/api/counts`);
+    const base_url = process.env.NEXT_PUBLIC_BASE_URL || ''
+    const response = await fetch(`${base_url}/api/counts`)
     const data = await response.json()
 
     const proposalCount = data.count

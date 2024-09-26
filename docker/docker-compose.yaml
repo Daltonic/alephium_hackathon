@@ -96,24 +96,24 @@ services:
     networks:
       - hackathon-network
 
-  alephium_hackathon_dapp:
-    build:
-      context: ../
-      dockerfile: Dockerfile
-    volumes:
-     - ../artifacts:/app/artifacts
-     - ../deployments:/app/deployments
-    env_file:
-      - ../.env
-    ports:
-      - "33000:3000"
-    restart: unless-stopped
-    stop_grace_period: 5m
-    depends_on:
-      - alephium
-    command: ["yarn", "deploy"]
-    networks:
-      - hackathon-network
+  # alephium_hackathon_dapp:
+  #   build:
+  #     context: ../
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #    - ../artifacts:/app/artifacts
+  #    - ../deployments:/app/deployments
+  #   env_file:
+  #     - ../.env
+  #   ports:
+  #     - "33000:3000"
+  #   restart: unless-stopped
+  #   stop_grace_period: 5m
+  #   depends_on:
+  #     - alephium
+  #   command: ["yarn", "deploy"]
+  #   networks:
+  #     - hackathon-network
 
 networks:
   hackathon-network:

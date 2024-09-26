@@ -3,12 +3,18 @@ import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
 import { Account, ONE_ALPH, stringToHex, waitForTxConfirmation, web3 } from '@alephium/web3'
 import { useWallet } from '@alephium/web3-react'
-import { loadDeployments } from 'artifacts/ts/deployments'
+import { loadDeployments } from '../../artifacts/ts/deployments'
 import { toast } from 'react-toastify'
+import { isValidNetworkId } from '@/services/utils'
 
 export default function Page() {
-  web3.setCurrentNodeProvider(process.env.NODE_URL || '')
-  const contract = loadDeployments('devnet').contracts.AlphHack.contractInstance
+  web3.setCurrentNodeProvider(process.env.NEXT_PUBLIC_NODE_URL as string)
+
+  const contract = loadDeployments(
+    process.env.NEXT_PUBLIC_NETWORK && isValidNetworkId(process.env.NEXT_PUBLIC_NETWORK)
+      ? process.env.NEXT_PUBLIC_NETWORK
+      : 'devnet'
+  ).contracts.AlphHack.contractInstance
 
   const [account, setAccount] = useState<Account>()
   const { connectionStatus, signer } = useWallet()
@@ -17,7 +23,7 @@ export default function Page() {
     title: '',
     description: ''
   })
-  const proposeCost = 5n
+  const proposeCost = 1n
 
   useEffect(() => {
     signer?.getSelectedAccount().then((account) => setAccount(account))
@@ -80,7 +86,7 @@ export default function Page() {
           <form onSubmit={handleSubmit} className="flex flex-col">
             <div className="flex flex-col justify-center items-center rounded-xl mt-5 mb-5">
               <h4 className="text-lg">Create Proposal</h4>
-              <p className="text-sm">A proposal cost 4 ALPH tokens, voting is free!</p>
+              <p className="text-md mt-2">1 ALPH token for creating and voting on proposals</p>
             </div>
             <div
               className="flex flex-row justify-between items-center bg-gray-300 bg-opacity-10

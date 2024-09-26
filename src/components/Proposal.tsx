@@ -1,23 +1,29 @@
 import 'dotenv/config'
-import { truncateAddress } from '@/services/utils'
+import { isValidNetworkId, truncateAddress } from '@/services/utils'
 import { ProposalStruct } from '../../artifacts/ts/types'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Account, hexToString, ONE_ALPH, waitForTxConfirmation, web3 } from '@alephium/web3'
 import { useWallet } from '@alephium/web3-react'
 import { toast } from 'react-toastify'
-import { loadDeployments } from 'artifacts/ts/deployments'
+import { loadDeployments } from '../../artifacts/ts/deployments'
 
 interface ProposalProps {
   proposalId: number
 }
 
 const Proposal: React.FC<ProposalProps> = ({ proposalId }) => {
-  web3.setCurrentNodeProvider(process.env.NODE_URL || '')
-  const contract = loadDeployments('devnet').contracts.AlphHack.contractInstance
+  web3.setCurrentNodeProvider(process.env.NEXT_PUBLIC_NODE_URL as string)
+
+  const contract = loadDeployments(
+    process.env.NEXT_PUBLIC_NETWORK && isValidNetworkId(process.env.NEXT_PUBLIC_NETWORK)
+      ? process.env.NEXT_PUBLIC_NETWORK
+      : 'devnet'
+  ).contracts.AlphHack.contractInstance
 
   const [proposal, setProposal] = useState<ProposalStruct>()
   const [hasVoted, setHasVoted] = useState<boolean>()
   const [account, setAccount] = useState<Account>()
+  const [voting, setVoting] = useState<boolean>()
   const { connectionStatus, signer } = useWallet()
   const votingCost = 1n
 
@@ -59,6 +65,7 @@ const Proposal: React.FC<ProposalProps> = ({ proposalId }) => {
   const handleVote = async (choice: boolean) => {
     if (connectionStatus !== 'connected' && !account) return toast.error('Please connect wallet first.')
     if (!signer || hasVoted) return
+    setVoting(true)
 
     await toast.promise(
       new Promise<void>((resolve, reject) => {
@@ -76,12 +83,14 @@ const Proposal: React.FC<ProposalProps> = ({ proposalId }) => {
             await waitForTxConfirmation(res.txId, 1, 4000)
             await fetchProposal()
             await fetchVoteStatus()
+            setVoting(false)
             console.log(res.txId)
             resolve(res)
           })
           .catch(async (error) => {
             await fetchProposal()
             await fetchVoteStatus()
+            setVoting(false)
             reject(error)
           })
       }),
@@ -106,9 +115,11 @@ const Proposal: React.FC<ProposalProps> = ({ proposalId }) => {
           <button
             className={`flex justify-center items-center px-2 py-1 rounded border-blue-500
               text-xs align-center w-max border transition duration-300 ease space-x-1
-              text-blue-500 hover:bg-blue-500 hover:text-white ${hasVoted ? 'opacity-50 cursor-not-allowed' : ''}`}
+              text-blue-500 hover:bg-blue-500 hover:text-white ${
+                !signer || hasVoted || voting ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             onClick={() => handleVote(true)}
-            disabled={hasVoted}
+            disabled={!signer || hasVoted || voting}
           >
             <i className="fas fa-ethereum text-xs cursor-pointer"></i>
             <span>{Number(proposal?.upvotes)} Upvote</span>
@@ -116,9 +127,11 @@ const Proposal: React.FC<ProposalProps> = ({ proposalId }) => {
           <button
             className={`flex justify-center items-center px-2 py-1 rounded border-red-500
               text-xs align-center w-max border transition duration-300 ease space-x-1
-              text-red-500 hover:bg-red-500 hover:text-white ${hasVoted ? 'opacity-50 cursor-not-allowed' : ''}`}
+              text-red-500 hover:bg-red-500 hover:text-white ${
+                !signer || hasVoted || voting ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             onClick={() => handleVote(false)}
-            disabled={hasVoted}
+            disabled={!signer || hasVoted || voting}
           >
             <i className="fas fa-ethereum text-xs cursor-pointer"></i>
             <span>{Number(proposal?.downvotes)} Downvote</span>
