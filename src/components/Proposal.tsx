@@ -1,6 +1,7 @@
+import 'dotenv/config'
 import { truncateAddress } from '@/services/utils'
 import { ProposalStruct } from '../../artifacts/ts/types'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Account, hexToString, ONE_ALPH, waitForTxConfirmation, web3 } from '@alephium/web3'
 import { useWallet } from '@alephium/web3-react'
 import { toast } from 'react-toastify'
@@ -11,7 +12,7 @@ interface ProposalProps {
 }
 
 const Proposal: React.FC<ProposalProps> = ({ proposalId }) => {
-  web3.setCurrentNodeProvider('http://127.0.0.1:22973')
+  web3.setCurrentNodeProvider(process.env.NODE_URL || '')
   const contract = loadDeployments('devnet').contracts.AlphHack.contractInstance
 
   const [proposal, setProposal] = useState<ProposalStruct>()
@@ -20,7 +21,7 @@ const Proposal: React.FC<ProposalProps> = ({ proposalId }) => {
   const { connectionStatus, signer } = useWallet()
   const votingCost = 1n
 
-  const fetchVoteStatus = async () => {
+  const fetchVoteStatus = useCallback(async () => {
     if (!proposalId || !account) return
 
     try {
@@ -31,9 +32,9 @@ const Proposal: React.FC<ProposalProps> = ({ proposalId }) => {
     } catch (error) {
       console.error('Error fetching proposal:', error)
     }
-  }
+  }, [proposalId, account])
 
-  const fetchProposal = async () => {
+  const fetchProposal = useCallback(async () => {
     if (!proposalId) return
 
     try {
@@ -44,7 +45,7 @@ const Proposal: React.FC<ProposalProps> = ({ proposalId }) => {
     } catch (error) {
       console.error('Error fetching proposal:', error)
     }
-  }
+  }, [proposalId])
 
   useEffect(() => {
     signer?.getSelectedAccount().then((account) => setAccount(account))
@@ -53,7 +54,7 @@ const Proposal: React.FC<ProposalProps> = ({ proposalId }) => {
   useEffect(() => {
     fetchProposal()
     fetchVoteStatus()
-  }, [proposalId, account])
+  }, [proposalId, account, fetchProposal, fetchVoteStatus])
 
   const handleVote = async (choice: boolean) => {
     if (connectionStatus !== 'connected' && !account) return toast.error('Please connect wallet first.')
@@ -78,7 +79,11 @@ const Proposal: React.FC<ProposalProps> = ({ proposalId }) => {
             console.log(res.txId)
             resolve(res)
           })
-          .catch((error) => reject(error))
+          .catch(async (error) => {
+            await fetchProposal()
+            await fetchVoteStatus()
+            reject(error)
+          })
       }),
       {
         pending: 'Voting...',

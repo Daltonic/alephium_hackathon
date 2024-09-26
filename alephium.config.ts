@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import { Configuration } from '@alephium/cli'
 import { Number256 } from '@alephium/web3'
 
@@ -7,7 +8,7 @@ export type Settings = {
   openaiAPIKey?: string
   ipfs?: {
     infura?: {
-      projectId: string,
+      projectId: string
       projectSecret: string
     }
   }
@@ -24,10 +25,11 @@ const defaultSettings: Settings = {
   }
 }
 
+
 const configuration: Configuration<Settings> = {
   networks: {
     devnet: {
-      nodeUrl: 'http://127.0.0.1:22973',
+      nodeUrl: process.env.NODE_URL || '',
       // here we could configure which address groups to deploy the contract
       privateKeys: ['a642942e67258589cd2b1822c631506632db5a12aabcf413604e785300d762a5'],
       settings: defaultSettings

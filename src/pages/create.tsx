@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
 import { Account, ONE_ALPH, stringToHex, waitForTxConfirmation, web3 } from '@alephium/web3'
@@ -6,7 +7,7 @@ import { loadDeployments } from 'artifacts/ts/deployments'
 import { toast } from 'react-toastify'
 
 export default function Page() {
-  web3.setCurrentNodeProvider('http://127.0.0.1:22973')
+  web3.setCurrentNodeProvider(process.env.NODE_URL || '')
   const contract = loadDeployments('devnet').contracts.AlphHack.contractInstance
 
   const [account, setAccount] = useState<Account>()

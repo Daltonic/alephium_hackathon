@@ -16,7 +16,7 @@ export default function Page() {
     signer?.getSelectedAccount().then((account) => setAccount(account))
 
     const fetchBalance = async () => {
-      let headersList = {
+      const headersList = {
         Accept: '*/*',
         'User-Agent': 'Thunder Client (https://www.thunderclient.com)'
       }
@@ -25,7 +25,7 @@ export default function Page() {
           method: 'GET',
           headers: headersList
         })
-        let data = await response.json()
+        const data = await response.json()
         setBalance(data.balance)
       }
     }

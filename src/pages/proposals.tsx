@@ -5,7 +5,11 @@ import Link from 'next/link'
 import { NextPage } from 'next'
 import EmptyProposal from '@/components/EmptyProposal'
 
-const Page: NextPage<{ proposalCount: number }> = ({ proposalCount }) => {
+interface Props {
+  proposalCount: number;
+}
+
+const Page: NextPage<Props> = ({ proposalCount }) => {
   return (
     <div>
       <Head>
@@ -47,7 +51,8 @@ export default Page
 
 export const getServerSideProps = async () => {
   try {
-    const response = await fetch('http://localhost:3000/api/counts')
+    const base_url = process.env.BASE_URL || '';
+    const response = await fetch(`${base_url}/api/counts`);
     const data = await response.json()
 
     const proposalCount = data.count

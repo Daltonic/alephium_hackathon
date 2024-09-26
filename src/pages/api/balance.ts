@@ -1,4 +1,5 @@
-import { DUST_AMOUNT, ONE_ALPH, web3 } from '@alephium/web3'
+import 'dotenv/config'
+import { ONE_ALPH, web3 } from '@alephium/web3'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -9,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Receiver address is required' })
     }
 
-    web3.setCurrentNodeProvider('http://127.0.0.1:22973', undefined, fetch)
+    web3.setCurrentNodeProvider(process.env.NODE_URL || '', undefined, fetch)
     const nodeProvider = web3.getCurrentNodeProvider()
 
     try {

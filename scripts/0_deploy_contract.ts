@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import { Deployer, DeployFunction, Network } from '@alephium/cli'
 import { Settings } from '../alephium.config'
 import { AlphHack } from '../artifacts/ts'
@@ -9,13 +10,12 @@ import {
   stringToHex,
   hexToString,
   web3,
-  isHexString,
-  MINIMAL_CONTRACT_DEPOSIT
+  isHexString
 } from '@alephium/web3'
 import { testNodeWallet } from '@alephium/web3-test'
 import { ProposalStruct } from '../artifacts/ts/types'
 
-web3.setCurrentNodeProvider('http://127.0.0.1:22973', undefined, fetch)
+web3.setCurrentNodeProvider(process.env.NODE_URL || '', undefined, fetch)
 const nodeProvider = web3.getCurrentNodeProvider()
 
 const deployContract: DeployFunction<Settings> = async (

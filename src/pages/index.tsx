@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useCallback } from 'react'
 import Head from 'next/head'
 import jumper from '../../assets/frog.gif'
 import obstacle from '../../assets/croc.gif'
@@ -6,11 +6,12 @@ import { useWallet } from '@alephium/web3-react'
 import { Account } from '@alephium/web3'
 import { toast } from 'react-toastify'
 
+let animationId: number
 const Home: React.FC = () => {
   const [isJumping, setIsJumping] = useState<boolean>(false)
   const [isGameOver, setIsGameOver] = useState<boolean>(true)
   const [leftPosition, setLeftPosition] = useState<number>(100)
-  const [obstacleSpeed, setObstacleSpeed] = useState<number>(1)
+  const [obstacleSpeed] = useState<number>(1)
   const [position, setPosition] = useState<number>(270)
   const [increaseTime] = useState<number>(30)
   const [canJump, setCanJump] = useState<boolean>(true)
@@ -21,7 +22,6 @@ const Home: React.FC = () => {
   const jumperRef = useRef<HTMLDivElement>(null)
   const obstacleRef = useRef<HTMLDivElement>(null)
 
-  let animationId: number
   const [account, setAccount] = useState<Account>()
 
   useEffect(() => {
@@ -73,7 +73,7 @@ const Home: React.FC = () => {
     let intervalId: NodeJS.Timeout
 
     if (!isGameOver) {
-      let timeSwap = 0
+      // let timeSwap = 0
       intervalId = setInterval(() => {
         setSurvivalTime((prevTime) => prevTime + 0.1)
         // timeSwap += 1
@@ -90,7 +90,7 @@ const Home: React.FC = () => {
   }, [isGameOver])
 
   // Check collision
-  const checkCollision = () => {
+  const checkCollision = useCallback(() => {
     if (isGameOver) return
 
     const obstacleLeft = obstacleRef.current?.style.left?.replace('%', '')
@@ -102,7 +102,7 @@ const Home: React.FC = () => {
         cancelAnimationFrame(animationId)
       }
     }
-  }
+  }, [isGameOver])
 
   // Animate obstacle
   useEffect(() => {
@@ -121,6 +121,7 @@ const Home: React.FC = () => {
       animationId = requestAnimationFrame(animateObstacle)
     }
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     animationId = requestAnimationFrame(animateObstacle)
 
     return () => {
@@ -162,7 +163,7 @@ const Home: React.FC = () => {
     }
   }, [isJumping])
 
-  const jump = () => {
+  const jump = useCallback(() => {
     if (canJump) {
       setIsJumping(true)
       setPosition(120)
@@ -170,14 +171,14 @@ const Home: React.FC = () => {
       setIsGameOver(false)
       setLeftPosition(100)
     }
-  }
+  }, [canJump, setIsJumping, setPosition, setCanJump, setIsGameOver, setLeftPosition])
 
   useEffect(() => {
     const intervalId = setInterval(checkCollision, 10)
     return () => {
       clearInterval(intervalId)
     }
-  }, [isGameOver])
+  }, [isGameOver, checkCollision])
 
   // Handle key press for jump
   useEffect(() => {
@@ -193,7 +194,7 @@ const Home: React.FC = () => {
     return () => {
       document.removeEventListener('keydown', handleKeyPress)
     }
-  }, [canJump, jump])
+  }, [canJump, jump, isGameOver])
 
   const resetGame = () => {
     setIsGameOver(false)
@@ -285,7 +286,7 @@ const Home: React.FC = () => {
         </button>
       )}
 
-      {isGameOver && survivalTime > 1.5 && (
+      {isGameOver && survivalTime > 1 && (
         <button
           className="bg-green-500 shadow-lg shadow-black text-white rounded-full
           p-1 min-w-28 text-md hidden md:block hover:bg-[#141f34] transition

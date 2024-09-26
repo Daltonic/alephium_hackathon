@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import { Deployments } from '@alephium/cli'
 import { CallContractParams, web3 } from '@alephium/web3'
 import { testNodeWallet } from '@alephium/web3-test'
@@ -13,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Proposal ID is required' })
     }
 
-    web3.setCurrentNodeProvider('http://127.0.0.1:22973', undefined, fetch)
+    web3.setCurrentNodeProvider(process.env.NODE_URL || '', undefined, fetch)
 
     const signer = await testNodeWallet()
     const [sender] = await signer.getAccounts()
@@ -28,7 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         args: { pid: BigInt(proposalId) }
       }
 
-      let proposal = await contract.view.getProposal(params)
+      const proposal = await contract.view.getProposal(params)
 
       res.status(200).json({
         message: `Total proposals available`,

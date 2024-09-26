@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import { Deployments } from '@alephium/cli'
 import { CallContractParams, web3 } from '@alephium/web3'
 import configuration from 'alephium.config'
@@ -17,7 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Voter Address is required' })
     }
 
-    web3.setCurrentNodeProvider('http://127.0.0.1:22973', undefined, fetch)
+    web3.setCurrentNodeProvider(process.env.NODE_URL || '', undefined, fetch)
 
     try {
       const deployments = await Deployments.load(configuration, 'devnet')
