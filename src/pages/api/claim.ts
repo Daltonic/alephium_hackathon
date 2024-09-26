@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import { ONE_ALPH, waitForTxConfirmation, web3 } from '@alephium/web3'
 import { testNodeWallet } from '@alephium/web3-test'
 import type { NextApiRequest, NextApiResponse } from 'next'
@@ -14,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Receiving amount is required' })
     }
 
-    web3.setCurrentNodeProvider('http://127.0.0.1:22973', undefined, fetch)
+    web3.setCurrentNodeProvider(process.env.NODE_URL || '', undefined, fetch)
     const nodeProvider = web3.getCurrentNodeProvider()
 
     const signer = await testNodeWallet()

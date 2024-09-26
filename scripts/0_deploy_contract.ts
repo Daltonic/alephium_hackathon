@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import { Deployer, DeployFunction, Network } from '@alephium/cli'
 import { Settings } from '../alephium.config'
 import { AlphHack } from '../artifacts/ts'
@@ -11,10 +12,10 @@ import {
   web3,
   isHexString
 } from '@alephium/web3'
-import { getSigners, testNodeWallet } from '@alephium/web3-test'
+import { testNodeWallet } from '@alephium/web3-test'
 import { ProposalStruct } from '../artifacts/ts/types'
 
-web3.setCurrentNodeProvider('http://127.0.0.1:22973', undefined, fetch)
+web3.setCurrentNodeProvider(process.env.NODE_URL || '', undefined, fetch)
 const nodeProvider = web3.getCurrentNodeProvider()
 
 const deployContract: DeployFunction<Settings> = async (
@@ -84,20 +85,19 @@ const deployContract: DeployFunction<Settings> = async (
   let proposalCount = await result.contractInstance.view.getProposalCount()
   console.log(`Proposal Count: ${proposalCount.returns}`)
 
-  const title = 'This is my first title'
-  const description = 'Hello, description here'
+  const title = 'Increase Community Funding'
+  const description = 'Allocate an additional 10% of block rewards to support community projects and initiatives.'
   const proposeCost = BigInt(5)
 
   await contract.transact.propose({
     signer,
-    args: { title: stringToHex(title), description: stringToHex(description), amount: proposeCost * ONE_ALPH },
-    attoAlphAmount: ONE_ALPH * 10n + DUST_AMOUNT
+    args: { title: stringToHex(title), description: stringToHex(description), amount: proposeCost },
+    attoAlphAmount: proposeCost * ONE_ALPH
   })
 
   console.log('////')
   console.log('After Proposing')
 
-  
   proposalCount = await result.contractInstance.view.getProposalCount()
   console.log(`Proposal Count: ${proposalCount.returns}`)
 

@@ -1,4 +1,5 @@
-import { Address, NetworkId, web3 } from '@alephium/web3'
+import 'dotenv/config'
+import { NetworkId } from '@alephium/web3'
 import { loadDeployments } from '../../artifacts/ts/deployments'
 
 export interface AlphHackConfig {
@@ -7,9 +8,6 @@ export interface AlphHackConfig {
   alphHackAddress: string
   alphHackId: string
 }
-
-web3.setCurrentNodeProvider('http://127.0.0.1:22973', undefined, fetch)
-const nodeProvider = web3.getCurrentNodeProvider()
 
 function getNetwork(): NetworkId {
   const network = (process.env.NEXT_PUBLIC_NETWORK ?? 'devnet') as NetworkId

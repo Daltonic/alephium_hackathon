@@ -37,6 +37,7 @@
     "@alephium/web3-wallet": "^1.6.0",
     "@next/font": "13.1.4",
     "detect-browser": "^5.3.0",
+    "dotenv": "^16.4.5",
     "eslint-config-next": "13.1.4",
     "framer-motion": "^6.3.11",
     "next": "13.1.4",

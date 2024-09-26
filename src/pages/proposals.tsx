@@ -2,8 +2,14 @@ import React from 'react'
 import Head from 'next/head'
 import Proposal from '@/components/Proposal'
 import Link from 'next/link'
+import { NextPage } from 'next'
+import EmptyProposal from '@/components/EmptyProposal'
 
-export default function Page() {
+interface Props {
+  proposalCount: number;
+}
+
+const Page: NextPage<Props> = ({ proposalCount }) => {
   return (
     <div>
       <Head>
@@ -20,7 +26,7 @@ export default function Page() {
         >
           <div className="flex flex-col flex-wrap w-5/6">
             <h1 className="sm:text-3xl md:2xl text-xl">Create a New Proposal</h1>
-            <p className="text-md mt-2">A proposal cost 4 ALPH tokens, voting is free!</p>
+            <p className="text-md mt-2">A proposal cost 5 ALPH tokens and voting is 1 ALPH</p>
           </div>
           <Link
             href={'/create'}
@@ -34,10 +40,28 @@ export default function Page() {
 
         <div className="h-10" />
 
-        {Array.from({ length: 5 }, (_, i) => (
-          <Proposal key={i} />
-        ))}
+        {proposalCount < 1 && <EmptyProposal />}
+        {proposalCount > 0 && Array.from({ length: proposalCount }, (_, i) => <Proposal proposalId={i + 1} key={i} />)}
       </div>
     </div>
   )
+}
+
+export default Page
+
+export const getServerSideProps = async () => {
+  try {
+    const base_url = process.env.BASE_URL || '';
+    const response = await fetch(`${base_url}/api/counts`);
+    const data = await response.json()
+
+    const proposalCount = data.count
+    return {
+      props: { proposalCount: JSON.parse(JSON.stringify(proposalCount)) }
+    }
+  } catch (error) {
+    return {
+      props: { proposalCount: 0 }
+    }
+  }
 }

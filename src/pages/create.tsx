@@ -1,7 +1,71 @@
-import React from 'react'
+import 'dotenv/config'
+import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
+import { Account, ONE_ALPH, stringToHex, waitForTxConfirmation, web3 } from '@alephium/web3'
+import { useWallet } from '@alephium/web3-react'
+import { loadDeployments } from 'artifacts/ts/deployments'
+import { toast } from 'react-toastify'
 
 export default function Page() {
+  web3.setCurrentNodeProvider(process.env.NODE_URL || '')
+  const contract = loadDeployments('devnet').contracts.AlphHack.contractInstance
+
+  const [account, setAccount] = useState<Account>()
+  const { connectionStatus, signer } = useWallet()
+
+  const [proposed, setProposed] = useState({
+    title: '',
+    description: ''
+  })
+  const proposeCost = 5n
+
+  useEffect(() => {
+    signer?.getSelectedAccount().then((account) => setAccount(account))
+  }, [signer, connectionStatus, account])
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = event.target
+    setProposed((prevDetails) => ({
+      ...prevDetails,
+      [name]: value
+    }))
+  }
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    if (proposed.title === '' || proposed.description === '') return toast.error('Please fill in all details.')
+    if (connectionStatus !== 'connected' && !account) return toast.error('Please connect wallet first.')
+    if (!signer) return
+
+    await toast.promise(
+      new Promise<void>((resolve, reject) => {
+        contract.transact
+          .propose({
+            signer,
+            args: {
+              title: stringToHex(proposed.title),
+              description: stringToHex(proposed.description),
+              amount: proposeCost
+            },
+            attoAlphAmount: ONE_ALPH * proposeCost
+          })
+          .then(async (res: any) => {
+            await waitForTxConfirmation(res.txId, 1, 4000)
+            setProposed({ title: '', description: '' })
+            console.log(res.txId)
+            resolve(res)
+          })
+          .catch((error) => reject(error))
+      }),
+      {
+        pending: 'Creating...',
+        success: 'Proposal created successfully 👌',
+        error: 'Encountered error 🤯'
+      }
+    )
+  }
+
   return (
     <div>
       <Head>
@@ -13,10 +77,10 @@ export default function Page() {
 
       <div className="text-gray-300 font-light">
         <div className="w-11/12 md:w-2/5 h-7/12 p-6 mx-auto">
-          <form className="flex flex-col">
+          <form onSubmit={handleSubmit} className="flex flex-col">
             <div className="flex flex-col justify-center items-center rounded-xl mt-5 mb-5">
               <h4 className="text-lg">Create Proposal</h4>
-              <p className='text-sm'>A proposal cost 4 ALPH tokens, voting is free!</p>
+              <p className="text-sm">A proposal cost 4 ALPH tokens, voting is free!</p>
             </div>
             <div
               className="flex flex-row justify-between items-center bg-gray-300 bg-opacity-10
@@ -28,6 +92,8 @@ export default function Page() {
                 type="text"
                 name="title"
                 placeholder="Proposal title"
+                value={proposed.title}
+                onChange={handleInputChange}
               />
             </div>
             <div
@@ -37,13 +103,17 @@ export default function Page() {
               <textarea
                 className="block w-full text-sm resize-none text-slate-500 bg-transparent
                 border-0 focus:outline-none focus:ring-0 h-20"
-                name="question"
+                name="description"
                 placeholder="Proposal detail..."
+                value={proposed.description}
+                onChange={handleInputChange}
               />
             </div>
-            <button className="bg-blue-500 shadow-sm hover:shadow-blue-900 text-white
+            <button
+              className="bg-blue-500 shadow-sm hover:shadow-blue-900 text-white
             rounded-full p-2 min-w-28 text-md md:block hover:bg-[#141f34]
-            transition duration-300 ease-in-out transform hover:scale-105 block mt-5">
+            transition duration-300 ease-in-out transform hover:scale-105 block mt-5"
+            >
               Submit
             </button>
           </form>

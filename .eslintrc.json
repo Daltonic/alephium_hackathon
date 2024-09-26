@@ -12,7 +12,9 @@
     "object-curly-spacing": ["error", "always"],
     "react/no-unescaped-entities": "warn",
     "react/react-in-jsx-scope": "warn",
-    "react/jsx-no-useless-omit": "off"
+    "react/jsx-no-useless-omit": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "react/prop-types": "off"
   },
   "parserOptions": {
     "ecmaVersion": 2020,
