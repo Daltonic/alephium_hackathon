@@ -245,7 +245,7 @@ const Home: React.FC = () => {
               <div className="flex flex-col items-center space-y-2">
                 <h4 className="text-xl font-bold">Game Over!</h4>
                 <p className="text-sm">You must reach 1 ALPH be before claiming prize.</p>
-                <p className="text-sm text-red-500">Maximum claims per hour is 3 and 3 ALPH max for each claim.</p>
+                <p className="text-sm text-red-500">Reward claims are limited to maximum 3 ALPH and 3x per hour.</p>
                 <button
                   onClick={resetGame}
                   className="bg-gray-500 shadow-lg shadow-black text-white rounded-full
@@ -263,7 +263,7 @@ const Home: React.FC = () => {
                   <span className="text-red-500">{increaseTime}sec</span>, claim your prize from{' '}
                   <span className="text-red-500">1 ALPH</span>.
                 </p>
-                <p className="text-sm text-red-500">Maximum claims per hour is 3 and 3 ALPH max for each claim.</p>
+                <p className="text-sm text-red-500">Reward claims are limited to maximum 3 ALPH and 3x per hour.</p>
                 <button
                   onClick={resetGame}
                   className="bg-gray-500 shadow-lg shadow-black text-white rounded-full
