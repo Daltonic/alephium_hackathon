@@ -11,6 +11,7 @@ A full-fledged decentralized application (DApp) built on the Alephium blockchain
 - Proposal Creation: Users can create and submit proposals.
 - Voting: Decentralized voting system for proposal approval.
 - Admin Cash Out: Administrative functionality for cashing out rewards.
+- Rate Limiting: Reward claims are limited to maximum 3 ALPH and 3x per hour.
 
 ## Overview
 
