@@ -1,5 +1,5 @@
 import 'dotenv/config'
-import { ONE_ALPH, waitForTxConfirmation, web3 } from '@alephium/web3'
+import { waitForTxConfirmation, web3 } from '@alephium/web3'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { PrivateKeyWallet } from '@alephium/web3-wallet'
 
@@ -27,7 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const tx = await signer.signAndSubmitTransferTx({
         // signerAddress: sender.address,
         signerAddress: signer.address,
-        destinations: [{ address: receiverAddress, attoAlphAmount: BigInt(amount) * ONE_ALPH }]
+        destinations: [{ address: receiverAddress, attoAlphAmount: BigInt(amount) }]
       })
 
       await waitForTxConfirmation(tx.txId, 1, 4000)
@@ -35,7 +35,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const { balance: receiverBalanceAfter } = await nodeProvider.addresses.getAddressesAddressBalance(receiverAddress)
 
       res.status(200).json({
-        message: `Claim successful, receiver balance: ${receiverBalanceAfter}`
+        message: `Claim successful, receiver balance: ${receiverBalanceAfter}`,
+        tx: tx.txId
       })
     } catch (error) {
       console.error(error)
