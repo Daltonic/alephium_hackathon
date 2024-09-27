@@ -12,6 +12,7 @@ interface ProposalProps {
 }
 
 const Proposal: React.FC<ProposalProps> = ({ proposalId }) => {
+  
   web3.setCurrentNodeProvider(process.env.NEXT_PUBLIC_NODE_URL as string)
 
   const contract = loadDeployments(
@@ -44,7 +45,7 @@ const Proposal: React.FC<ProposalProps> = ({ proposalId }) => {
     if (!proposalId) return
 
     try {
-      const response = await fetch(`/api/proposal?proposalId=${proposalId}&`)
+      const response = await fetch(`/api/proposal?proposalId=${proposalId}`)
       const data = await response.json()
 
       setProposal(data.proposal)
