@@ -3,7 +3,7 @@ import Head from 'next/head'
 import jumper from '../../assets/frog.gif'
 import obstacle from '../../assets/croc.gif'
 import { useWallet } from '@alephium/web3-react'
-import { Account } from '@alephium/web3'
+import { Account, convertAlphAmountWithDecimals, number256ToBigint, number256ToNumber } from '@alephium/web3'
 import { toast } from 'react-toastify'
 
 let animationId: number
@@ -43,7 +43,7 @@ const Home: React.FC = () => {
 
     const bodyContent = JSON.stringify({
       receiverAddress: account.address,
-      amount: Math.round(survivalTime)
+      amount: convertAlphAmountWithDecimals(survivalTime)
     })
 
     await toast.promise(
@@ -62,6 +62,7 @@ const Home: React.FC = () => {
             resolve(res)
           })
           .catch((error) => {
+            resetGame()
             setClaiming(false)
             reject(error)
           })
@@ -260,6 +261,7 @@ const Home: React.FC = () => {
                   <span className="text-red-500">{increaseTime}sec</span>, claim your prize from{' '}
                   <span className="text-red-500">1 ALPH</span>.
                 </p>
+                <p className="text-sm text-red-500">You can only claim 5 ALPH per day.</p>
                 <button
                   onClick={resetGame}
                   className="bg-gray-500 shadow-lg shadow-black text-white rounded-full
