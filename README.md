@@ -1,71 +1,49 @@
-This is a Alephium template project for the
-[Next.js](https://nextjs.org/) framework, it is bootstrapped with the
-following command:
+# AlphHack
+![Game Play and Reward](./screenshots/0.gif)
+![Proposals](./screenshots/1.png)
 
-```
-npx @alephium/cli init $project-name --template nextjs
-```
+A full-fledged decentralized application (DApp) built on the Alephium blockchain, featuring:
 
-This template project demonstrates how to implement a simple token
-faucet and expose it with a Web UI using Next.js.
+## Key Features
 
-## Getting Started
+- Gameplay: Engaging game for users to participate and earn rewards.
+- Rewards Claims: Users can claim rewards in ALPH tokens.
+- Proposal Creation: Users can create and submit proposals.
+- Voting: Decentralized voting system for proposal approval.
+- Admin Cash Out: Administrative functionality for cashing out rewards.
 
-### Install
+## Overview
 
-```
-npm install
-```
+AlphHack combines gaming, reward claiming, proposal creation, voting, and admin cash out functionalities in a single DApp, leveraging the Alephium blockchain's security and decentralization.
 
-### Start a local devnet for testing and development
+## Requirements
 
-```
-npx @alephium/cli@latest devnet start
-```
+- NodeJs
+- Alephium node (contract deployed on testnet)
 
-### Deploy the token faucet contract
+## Running Locally
 
-```bash
-# In this case devnet
-npx @alephium/cli deploy -n devnet
+1. Clone the repository:
+```sh
+$ git clone https://github.com/Daltonic/alephium_hackathon.git
 ```
 
-This will compile and deploy the token faucet contracts to all of the
-4 groups on devnet.
 
-Before deployment, you might want to just compile and test the
-contracts first:
+2. Install dependencies:
 
-```bash
-# Compile
-npx @alephium/cli compile
-
-# Test
-npx @alephium/cli test
+```sh
+$ npm install # or yarn install
 ```
 
-### Run the development server
+3. Start the Application:
 
-```bash
-npm run dev
-# or
-yarn dev
+```sh
+$ npm run dev # or yarn dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser
-to see the token faucet application.
-
-Download the [Alephium Extension Wallet](https://github.com/alephium/extension-wallet)
-to interact with the application.
-
-## Learn More
-
-To learn more about smart contract development on Alephium, take a
-look at the following resources:
-
-- [Alephium Web3 SDK Guide](https://docs.alephium.org/dapps/alephium-web3/) - Learn about Alephium Web3 SDK
-- [Ralph Language](https://docs.alephium.org/ralph/getting-started) - A guide to the Ralph programming language
-
-You can check out the [Alephium GitHub
-repositories](https://github.com/alephium) for more information - your
-feedback and contributions are welcome!
+#### Useful links:
+🏠 Alephium Website: https://alephium.org
+🔥 Alephium Hackathon: https://dappmentors.org/links/muodqy
+👨‍💻 Alephium Documentation: https://docs.alephium.org/dapps
+🚀 Our Discord: https://dappmentors.org/links/ytexzd
+💡 Our Website: https://dappmentors.org/

@@ -3,7 +3,7 @@ import Head from 'next/head'
 import jumper from '../../assets/frog.gif'
 import obstacle from '../../assets/croc.gif'
 import { useWallet } from '@alephium/web3-react'
-import { Account, convertAlphAmountWithDecimals, number256ToBigint, number256ToNumber } from '@alephium/web3'
+import { Account, convertAlphAmountWithDecimals } from '@alephium/web3'
 import { toast } from 'react-toastify'
 
 let animationId: number
@@ -14,6 +14,7 @@ const Home: React.FC = () => {
   const [obstacleSpeed] = useState<number>(1)
   const [position, setPosition] = useState<number>(270)
   const [increaseTime] = useState<number>(30)
+  const [maxClaim] = useState<number>(3)
   const [canJump, setCanJump] = useState<boolean>(true)
   const [resetObstacle, setResetObstacle] = useState<boolean>(false)
   const [survivalTime, setSurvivalTime] = useState<number>(0)
@@ -43,7 +44,7 @@ const Home: React.FC = () => {
 
     const bodyContent = JSON.stringify({
       receiverAddress: account.address,
-      amount: convertAlphAmountWithDecimals(survivalTime)
+      amount: convertAlphAmountWithDecimals(survivalTime > maxClaim ? maxClaim : survivalTime)
     })
 
     await toast.promise(
@@ -261,7 +262,7 @@ const Home: React.FC = () => {
                   <span className="text-red-500">{increaseTime}sec</span>, claim your prize from{' '}
                   <span className="text-red-500">1 ALPH</span>.
                 </p>
-                <p className="text-sm text-red-500">You can only claim 5 ALPH per day.</p>
+                <p className="text-sm text-red-500">Maximum per claim is 3 ALPH.</p>
                 <button
                   onClick={resetGame}
                   className="bg-gray-500 shadow-lg shadow-black text-white rounded-full
@@ -304,7 +305,7 @@ const Home: React.FC = () => {
           onClick={() => claimPrize()}
           disabled={claiming}
         >
-          Claim Prize
+          {claiming ? 'Claiming...' : 'Claim Prize'}
         </button>
       )}
     </>
