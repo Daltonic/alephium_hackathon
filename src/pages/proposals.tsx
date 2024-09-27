@@ -1,4 +1,3 @@
-
 import React from 'react'
 import Head from 'next/head'
 import Proposal from '@/components/Proposal'
@@ -42,7 +41,10 @@ const Page: NextPage<Props> = ({ proposalCount }) => {
         <div className="h-10" />
 
         {proposalCount < 1 && <EmptyProposal />}
-        {proposalCount > 0 && Array.from({ length: proposalCount }, (_, i) => <Proposal proposalId={i + 1} key={i} />)}
+        {proposalCount > 0 &&
+          Array.from({ length: proposalCount }, (_, index) => index + 1)
+            .reverse()
+            .map((pid: number, i: number) => <Proposal proposalId={pid} key={i} />)}
       </div>
     </div>
   )
